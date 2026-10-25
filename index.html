@@ -62,30 +62,9 @@
         </div>
 
         <div class="mobile" id="mobile" aria-hidden="true">
-          <svg class="branch" viewBox="0 0 900 220" preserveAspectRatio="xMaxYMin meet">
-            <defs>
-              <linearGradient id="bark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#5A4230"/><stop offset="1" stop-color="#2A1D13"/>
-              </linearGradient>
-              <path id="leaf" d="M0 0 C 10 -9, 30 -9, 42 0 C 30 9, 10 9, 0 0 Z"/>
-            </defs>
-            <path fill="url(#bark)" d="M900 18 C 820 30, 760 52, 680 62 C 600 72, 520 66, 430 80 C 360 90, 300 108, 236 112 C 230 112, 226 109, 228 104 C 300 94, 360 78, 428 66 C 520 50, 600 56, 676 46 C 756 36, 820 14, 900 0 Z"/>
-            <path fill="url(#bark)" d="M612 58 C 590 40, 566 28, 534 22 C 532 18, 536 16, 540 17 C 572 22, 600 34, 622 54 Z"/>
-            <path fill="url(#bark)" d="M380 84 C 368 104, 352 120, 330 130 C 326 130, 326 126, 328 124 C 348 112, 362 98, 372 80 Z"/>
-            <g>
-              <use href="#leaf" fill="#4E8A57" transform="translate(536 20) rotate(-160)"/>
-              <use href="#leaf" fill="#6FA06A" transform="translate(548 22) rotate(-120)"/>
-              <use href="#leaf" fill="#3E7149" transform="translate(330 128) rotate(110)"/>
-              <use href="#leaf" fill="#6FA06A" transform="translate(332 126) rotate(160)"/>
-              <use href="#leaf" fill="#4E8A57" transform="translate(236 110) rotate(170)"/>
-              <use href="#leaf" fill="#3E7149" transform="translate(240 108) rotate(-150)"/>
-              <use href="#leaf" fill="#6FA06A" transform="translate(470 74) rotate(70)"/>
-              <use href="#leaf" fill="#4E8A57" transform="translate(700 56) rotate(100)"/>
-              <use href="#leaf" fill="#3E7149" transform="translate(760 44) rotate(-80)"/>
-            </g>
-          </svg>
+          <div class="branch" aria-hidden="true"></div>
 
-          <div class="hanger" data-x="0.55" data-y="0.305" data-len="0.62" style="--w: clamp(120px, 12vw, 170px)">
+          <div class="hanger" data-x="0.6" data-y="0" data-len="1.35" style="--w: clamp(120px, 12vw, 170px)">
             <i class="string"></i>
             <div class="piece">
               <svg viewBox="0 0 170 120">
@@ -103,7 +82,7 @@
               </svg>
             </div>
           </div>
-          <div class="hanger" data-x="0.86" data-y="0.17" data-len="1" style="--w: clamp(40px, 4vw, 56px)">
+          <div class="hanger" data-x="0.78" data-y="0" data-len="1.95" style="--w: clamp(40px, 4vw, 56px)">
             <i class="string"></i>
             <div class="piece">
               <svg viewBox="0 0 56 110">
@@ -115,15 +94,6 @@
                 <rect x="22" y="0" width="12" height="12" rx="3" fill="url(#brass)"/>
                 <path d="M8 14 H48 L46 40 L28 108 L10 40 Z" fill="url(#brass)"/>
                 <path d="M8 14 H48 L47 22 H9 Z" fill="#5E3714" opacity=".35"/>
-              </svg>
-            </div>
-          </div>
-          <div class="hanger" data-x="0.7" data-y="0.27" data-len="0.4" style="--w: clamp(44px, 4.4vw, 62px)">
-            <i class="string"></i>
-            <div class="piece">
-              <svg viewBox="0 0 60 100">
-                <path d="M30 4 C 52 28, 56 64, 30 96 C 4 64, 8 28, 30 4 Z" fill="#C9E265"/>
-                <path d="M30 4 V 96 M30 40 L 44 28 M30 56 L 16 44 M30 72 L 44 60" stroke="#6E8A2E" stroke-width="2" fill="none"/>
               </svg>
             </div>
           </div>
@@ -363,11 +333,45 @@
   </main>
 
   <footer class="foot">
-    <div class="foot__big" aria-hidden="true">PGFS</div>
+    <div class="foot__top">
+      <div class="foot__intro">
+        <p class="foot__say">¿Su proyecto está en el bosque, en el río o en la ciudad? Lo recorremos con usted.</p>
+        <a class="btn" href="#contacto">Conversemos
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        </a>
+      </div>
+      <nav class="foot__cols" aria-label="Pie de página">
+        <div>
+          <h4>Explorar</h4>
+          <a href="#nosotros">Nosotros</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#campo">En campo</a>
+          <a href="#territorio">Territorio</a>
+        </div>
+        <div>
+          <h4>Frentes</h4>
+          <a href="#servicios" data-tab-link="0">Gestión forestal</a>
+          <a href="#servicios" data-tab-link="1">Ambiente y territorio</a>
+          <a href="#servicios" data-tab-link="2">Ingeniería y obra</a>
+          <a href="#servicios" data-tab-link="3">Soporte en campo</a>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <a href="https://wa.me/51900000000">+51 900 000 000</a>
+          <a href="mailto:contacto@pgfs.pe">contacto@pgfs.pe</a>
+          <span>Ciudad, Perú</span>
+        </div>
+      </nav>
+    </div>
+
+    <div class="foot__mark" id="footMark" aria-hidden="true"><span id="footWord">PGFS</span></div>
+
     <div class="foot__row">
-      <span>Consultores &amp; Constructores &amp; PGFS E.I.R.L.</span>
-      <span>RUC 20XXXXXXXXX</span>
-      <span>© <span id="year">2026</span></span>
+      <span>Consultores &amp; Constructores &amp; PGFS E.I.R.L. · RUC 20XXXXXXXXX</span>
+      <span>© <span id="year">2026</span> · Del bosque a la obra</span>
+      <a class="foot__up" href="#inicio">Volver arriba
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16V4M5 9l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      </a>
     </div>
   </footer>
 

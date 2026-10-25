@@ -103,7 +103,6 @@
   const hero = $('.hero');
   const heroSticky = $('.hero__sticky');
   const mobile = $('#mobile');
-  const branch = $('.branch', mobile);
   const hangers = $$('.hanger', mobile).map((el, i) => ({
     el, piece: $('.piece', el), i,
     fx: +el.dataset.x, fy: +el.dataset.y, lenK: +el.dataset.len,
@@ -112,8 +111,9 @@
   const ptr = { x: -9999, y: -9999, vx: 0, lastX: 0, lastT: 0 };
 
   function layoutHangers() {
-    const bw = branch.clientWidth, bh = branch.clientHeight;
-    const base = Math.max(innerWidth < 600 ? 40 : 90, Math.min(260, heroSticky.clientHeight * 0.27, innerWidth * 0.16));
+    // cables que bajan desde arriba de la pantalla, como colgados del dron
+    const bw = mobile.clientWidth, bh = 0;
+    const base = Math.max(innerWidth < 600 ? 70 : 110, Math.min(200, heroSticky.clientHeight * 0.2));
     hangers.forEach(p => {
       p.ax = p.fx * bw; p.ay = p.fy * bh;
       p.L = base * p.lenK;
@@ -227,7 +227,17 @@
   const gallery = $('.gallery');
   const track = $('#galleryTrack');
   const shots = $$('.shot img');
-  const footBig = $('.foot__big');
+  const footMark = $('#footMark');
+  const footWord = $('#footWord');
+  // la palabra ocupa exactamente el ancho disponible
+  function fitWord() {
+    footWord.style.setProperty('--fs', '100px');
+    const ratio = footWord.getBoundingClientRect().width / 100;
+    footWord.style.setProperty('--fs', `${(footMark.clientWidth / ratio).toFixed(2)}px`);
+  }
+  fitWord();
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(fitWord);
+  new IntersectionObserver(([e], o) => { if (e.isIntersecting) { footMark.classList.add('in'); o.disconnect(); } }, { rootMargin: '0px 0px -10% 0px' }).observe(footMark);
   function sizeGallery() {
     gallery.style.height = `${track.scrollWidth - innerWidth + innerHeight}px`;
   }
@@ -342,11 +352,13 @@
       });
     }
 
-    // pie: las letras grandes suben al llegar
-    const fbr = footBig.getBoundingClientRect();
-    if (fbr.top < vh) {
-      const p = clamp((vh - fbr.top) / (fbr.height + 120), 0, 1);
-      footBig.style.setProperty('--fy', `${(40 * (1 - p)).toFixed(2)}%`);
+    // pie: la toma del río se desplaza dentro de las letras con el scroll y el cursor
+    const fmr = footMark.getBoundingClientRect();
+    if (fmr.top < vh && fmr.bottom > 0 && !reduce) {
+      const p = clamp((vh - fmr.top) / (vh + fmr.height), 0, 1);
+      const mx = ptr.x > -9999 ? ptr.x / innerWidth - 0.5 : 0;
+      footWord.style.setProperty('--by', `${(20 + p * 60).toFixed(2)}%`);
+      footWord.style.setProperty('--bx', `${(50 + mx * 30).toFixed(2)}%`);
     }
 
     // cursor
@@ -377,7 +389,7 @@
 
   addEventListener('resize', () => {
     clearTimeout(layoutHangers.t);
-    layoutHangers.t = setTimeout(() => { layoutHangers(); sizeGallery(); }, 150);
+    layoutHangers.t = setTimeout(() => { layoutHangers(); sizeGallery(); fitWord(); }, 150);
   });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { heroVideo.pause(); fieldVideo.pause(); } });
 
@@ -406,6 +418,9 @@
     const top = a.getAttribute('href') === '#inicio' ? 0 : target.getBoundingClientRect().top + scrollY - (target.id === 'campo' || target.id === 'territorio' ? 0 : 70);
     scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
   }));
+
+  // enlaces del pie que abren directamente un frente de servicios
+  $$('[data-tab-link]').forEach(a => a.addEventListener('click', () => tabs[+a.dataset.tabLink].click()));
 
   /* ---------- Formulario → WhatsApp ---------- */
   const form = $('#form');

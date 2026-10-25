@@ -179,12 +179,11 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 @keyframes drip { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
 
 /* Rama y piezas colgantes */
-.mobile { position: absolute; top: clamp(44px, 7vh, 70px); right: 0; width: min(980px, 76vw); z-index: 2; transform: translate3d(0, var(--my, 0px), 0); }
-.branch { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.35)); transform: translateX(30%); opacity: 0; transition: transform 1400ms var(--ease-drawer), opacity 800ms ease; }
-.is-ready .branch { transform: none; opacity: 1; }
+.mobile { position: absolute; top: -24px; right: 0; width: min(980px, 76vw); z-index: 2; transform: translate3d(0, var(--my, 0px), 0); }
+.branch { display: none; }
 .hanger { position: absolute; left: 0; top: 0; width: var(--w); margin-left: calc(var(--w) / -2); transform-origin: 50% 0; will-change: transform; opacity: 0; transition: opacity 600ms ease; touch-action: none; }
 .is-ready .hanger { opacity: 1; transition-delay: 700ms; }
-.hanger .string { display: block; width: 1.5px; height: var(--len); margin: 0 auto; background: linear-gradient(#8C7A62, #C9B89C); transform-origin: 50% 0; transform: scaleY(0); transition: transform 900ms var(--ease-out); transition-delay: 800ms; }
+.hanger .string { display: block; width: 1px; height: var(--len); margin: 0 auto; background: linear-gradient(rgba(233, 240, 230, 0.15), rgba(233, 240, 230, 0.75)); box-shadow: 1px 0 0 rgba(0, 0, 0, 0.25); transform-origin: 50% 0; transform: scaleY(0); transition: transform 1100ms var(--ease-out); transition-delay: 500ms; }
 .is-ready .hanger .string { transform: scaleY(1); }
 .hanger .piece { transform-origin: 50% 0; will-change: transform; filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.4)); cursor: grab; }
 .hanger .piece:active { cursor: grabbing; }
@@ -325,9 +324,33 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .form__error { font-size: 14px; color: #8E3F12; min-height: 1.4em; }
 
 /* ---------- Pie ---------- */
-.foot { background: var(--forest-950); padding: 64px var(--gutter) 32px; overflow: hidden; }
-.foot__big { font: 800 clamp(120px, 30vw, 460px)/0.78 var(--display); letter-spacing: -0.06em; color: var(--forest-800); user-select: none; transform: translate3d(0, var(--fy, 40%), 0); }
-.foot__row { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(233,240,230,0.12); font-size: 14px; color: var(--on-dark-2); position: relative; background: var(--forest-950); }
+.foot { background: var(--forest-950); padding: clamp(72px, 9vw, 120px) var(--gutter) 28px; overflow: hidden; }
+.foot__top { display: grid; grid-template-columns: 1.1fr 1.4fr; gap: clamp(40px, 6vw, 96px); padding-bottom: clamp(48px, 6vw, 80px); }
+.foot__say { font: 500 clamp(26px, 2.8vw, 40px)/1.1 var(--display); letter-spacing: -0.03em; max-width: 18ch; margin-bottom: 28px; }
+.foot__cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.foot__cols div { display: grid; gap: 10px; align-content: start; }
+.foot__cols h4 { margin: 0 0 8px; font: 400 12px/1 var(--mono); color: var(--lichen); letter-spacing: 0.06em; text-transform: uppercase; }
+.foot__cols a, .foot__cols span { color: var(--on-dark-2); text-decoration: none; font-size: 15px; width: fit-content; background: linear-gradient(var(--lichen), var(--lichen)) 0 100% / 0 1px no-repeat; transition: color 200ms ease, background-size 350ms var(--ease-out); }
+.foot__cols span { background: none; }
+@media (hover: hover) and (pointer: fine) { .foot__cols a:hover { color: var(--on-dark); background-size: 100% 1px; } }
+
+/* La marca se llena con la toma del río y se revela al llegar */
+.foot__mark { position: relative; clip-path: inset(var(--mi, 100%) 0 0 0); transition: clip-path 1300ms var(--ease-in-out); }
+.foot__mark.in { --mi: 0%; }
+.foot__mark span {
+  display: block; width: max-content; white-space: nowrap;
+  font: 800 var(--fs, 28vw)/0.8 var(--display); letter-spacing: -0.065em; padding: 0.02em 0.04em 0.04em 0;
+  color: transparent;
+  background: url("media/img/rio-meandro-1800.webp") var(--bx, 50%) var(--by, 50%) / 130% auto no-repeat, var(--forest-800);
+  -webkit-background-clip: text; background-clip: text;
+  transform: translate3d(0, var(--my2, 18%), 0); transition: transform 1300ms var(--ease-out);
+}
+.foot__mark.in span { --my2: 0%; }
+.foot__row { display: grid; grid-template-columns: 1fr auto auto; gap: 12px 32px; align-items: center; margin-top: 28px; padding-top: 22px; border-top: 1px solid rgba(233,240,230,0.12); font-size: 14px; color: var(--on-dark-2); }
+.foot__up { display: inline-flex; align-items: center; gap: 10px; color: var(--on-dark); text-decoration: none; font-weight: 500; }
+.foot__up svg { width: 34px; height: 34px; padding: 8px; border-radius: 50%; background: var(--lichen); color: var(--forest-900); transition: transform 250ms var(--ease-out); }
+.foot__up:active svg { transform: scale(0.92); }
+@media (hover: hover) and (pointer: fine) { .foot__up:hover svg { transform: translateY(-3px); } }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
@@ -347,9 +370,8 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
   .hero__veil { background: linear-gradient(0deg, rgba(7, 23, 15, 0.9) 10%, rgba(7, 23, 15, 0.45) 55%, rgba(7, 23, 15, 0.35) 100%); }
   .hero__inner { bottom: 80px; }
   .hero__foot span:first-child { display: none; }
-  .mobile { width: 118vw; right: -8vw; top: 78px; }
+  .mobile { width: 100vw; right: 0; top: -24px; }
   .hanger:nth-of-type(1) { --w: 100px !important; }
-  .hanger:nth-of-type(3) { display: none; }
 
   .about__fronts { grid-template-columns: 1fr 1fr; }
   .front { padding: 22px 16px 22px 0; }
@@ -378,12 +400,16 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
   .gallery__head { flex-direction: column; align-items: start; }
   .shot { height: 46vh; }
   .contact { grid-template-columns: 1fr; }
+  .foot__top { grid-template-columns: 1fr; }
+  .foot__row { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
   .about__fronts { grid-template-columns: 1fr; }
   .front, .front:nth-child(even) { padding: 20px 0; border-left: 0; }
   .front + .front { border-top: 1px solid rgba(233, 240, 230, 0.14); }
   .contact__data div { grid-template-columns: 1fr; gap: 4px; }
+  .foot__cols { grid-template-columns: 1fr 1fr; }
+  .foot__cols div:last-child { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -397,4 +423,6 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
   .branch, .hanger .string { transform: none !important; }
   .svc-media img, .field__layer { transition: opacity 300ms ease; transform: none; }
   .svc.is-active .svc__item { animation: none; }
+  .foot__mark { clip-path: none; transition: none; }
+  .foot__mark span { transform: none; transition: none; }
 }
