@@ -238,12 +238,70 @@
   fitWord();
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(fitWord);
   new IntersectionObserver(([e], o) => { if (e.isIntersecting) { footMark.classList.add('in'); o.disconnect(); } }, { rootMargin: '0px 0px -10% 0px' }).observe(footMark);
-  function sizeGallery() {
-    gallery.style.height = `${track.scrollWidth - innerWidth + innerHeight}px`;
+  /* ---------- Carrusel arrastrable con inercia ---------- */
+  const viewport = $('#galleryViewport');
+  const galPrev = $('#galPrev'), galNext = $('#galNext'), galBar = $('#galBar');
+  const cards = $$('.shot', track);
+  const gal = { x: 0, target: 0, dragging: false, startX: 0, startPos: 0, lastX: 0, lastT: 0, vel: 0, moved: 0 };
+  const galMax = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+  const snapPoints = () => cards.map(c => Math.min(galMax(), c.offsetLeft - parseFloat(getComputedStyle(track).paddingLeft)));
+  function sizeGallery() { gal.target = clamp(gal.target, -galMax(), 0); }
+  function snapTo(pos) {
+    const pts = snapPoints();
+    let best = pts[0];
+    pts.forEach(p => { if (Math.abs(-p - pos) < Math.abs(-best - pos)) best = p; });
+    gal.target = -best;
   }
-  sizeGallery();
-  addEventListener('load', sizeGallery);
-  $$('img', track).forEach(img => img.addEventListener('load', sizeGallery));
+  function step(dir) {
+    const pts = snapPoints();
+    const cur = -gal.target;
+    const i = pts.findIndex(p => p > cur + 4);
+    const idx = dir > 0 ? (i === -1 ? pts.length - 1 : i) : Math.max(0, pts.filter(p => p < cur - 4).length - 1);
+    gal.target = -pts[idx];
+  }
+  viewport.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    gal.dragging = true; gal.moved = 0;
+    gal.startX = gal.lastX = e.clientX; gal.startPos = gal.x; gal.lastT = performance.now(); gal.vel = 0;
+    viewport.setPointerCapture(e.pointerId);
+    viewport.classList.add('is-dragging');
+  });
+  viewport.addEventListener('pointermove', e => {
+    if (!gal.dragging) return;
+    const now = performance.now();
+    const dt = Math.max(1, now - gal.lastT);
+    gal.vel = gal.vel * 0.7 + ((e.clientX - gal.lastX) / dt) * 0.3;
+    gal.lastX = e.clientX; gal.lastT = now;
+    gal.moved = Math.max(gal.moved, Math.abs(e.clientX - gal.startX));
+    let pos = gal.startPos + (e.clientX - gal.startX);
+    // resistencia elástica en los extremos
+    const min = -galMax();
+    if (pos > 0) pos *= 0.35;
+    if (pos < min) pos = min + (pos - min) * 0.35;
+    gal.x = gal.target = pos;
+  });
+  const endDrag = () => {
+    if (!gal.dragging) return;
+    gal.dragging = false;
+    viewport.classList.remove('is-dragging');
+    // inercia: proyecta el gesto y se asienta en la foto más cercana
+    snapTo(clamp(gal.x + gal.vel * 320, -galMax(), 0));
+  };
+  viewport.addEventListener('pointerup', endDrag);
+  viewport.addEventListener('pointercancel', endDrag);
+  viewport.addEventListener('wheel', e => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    gal.target = clamp(gal.target - e.deltaX, -galMax(), 0);
+    clearTimeout(gal.wheelT);
+    gal.wheelT = setTimeout(() => snapTo(gal.target), 160);
+  }, { passive: false });
+  viewport.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  });
+  galPrev.addEventListener('click', () => step(-1));
+  galNext.addEventListener('click', () => step(1));
 
   /* ---------- Revelado al entrar ---------- */
   const io = new IntersectionObserver(entries => {
@@ -339,12 +397,17 @@
       visionFrame.style.setProperty('--vo', clamp((p - 0.45) / 0.4, 0, 1).toFixed(3));
     }
 
-    // galería horizontal
+    // carrusel: se acerca a su destino y mueve la foto dentro de cada marco
     const gr = gallery.getBoundingClientRect();
     if (gr.top < vh && gr.bottom > 0) {
-      const p = clamp(-gr.top / (gr.height - vh), 0, 1);
-      const max = track.scrollWidth - innerWidth;
-      track.style.transform = `translate3d(${(-p * max).toFixed(1)}px,0,0)`;
+      if (!gal.dragging) gal.x += (gal.target - gal.x) * (reduce ? 1 : 1 - Math.exp(-dt * 9));
+      track.style.transform = `translate3d(${gal.x.toFixed(1)}px,0,0)`;
+      const max = galMax();
+      const visible = viewport.clientWidth / track.scrollWidth;
+      galBar.style.setProperty('--bw', `${(visible * 100).toFixed(1)}%`);
+      galBar.style.setProperty('--bp', `${(clamp(-gal.x / (max || 1), 0, 1) * (1 / visible - 1) * 100).toFixed(1)}%`);
+      galPrev.disabled = gal.target > -2;
+      galNext.disabled = gal.target < -max + 2;
       if (!reduce) shots.forEach(img => {
         const r = img.parentElement.getBoundingClientRect();
         const c = (r.left + r.width / 2) / innerWidth - 0.5;
@@ -378,7 +441,7 @@
       const shot = e.target.closest('.shot');
       const link = e.target.closest('a, button, select, input, textarea');
       cursor.classList.toggle('is-label', !!(piece || shot));
-      cursorLabel.textContent = piece ? 'Mueve' : shot ? 'Baja' : '';
+      cursorLabel.textContent = piece ? 'Mueve' : shot ? 'Arrastra' : '';
       cursor.classList.toggle('is-link', !!link && !piece && !shot);
     });
     document.addEventListener('pointerleave', () => cursor.classList.add('is-hidden'));
@@ -415,7 +478,7 @@
     const target = $(a.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
-    const top = a.getAttribute('href') === '#inicio' ? 0 : target.getBoundingClientRect().top + scrollY - (target.id === 'campo' || target.id === 'territorio' ? 0 : 70);
+    const top = a.getAttribute('href') === '#inicio' ? 0 : target.getBoundingClientRect().top + scrollY - (target.id === 'campo' ? 0 : 70);
     scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
   }));
 

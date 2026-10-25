@@ -277,13 +277,24 @@
       </ul>
     </section>
 
-    <!-- Territorio: galería horizontal ligada al scroll -->
+    <!-- Territorio: carrusel que el visitante arrastra -->
     <section class="gallery" id="territorio">
-      <div class="gallery__sticky">
+      <div class="gallery__inner">
         <div class="gallery__head">
-          <h2>Territorio que conocemos</h2>
-          <p>Tomas propias de nuestras jornadas en la Amazonía.</p>
+          <div>
+            <h2>Territorio que conocemos</h2>
+            <p>Tomas propias de nuestras jornadas en la Amazonía. Arrastre para recorrerlas.</p>
+          </div>
+          <div class="gallery__nav">
+            <button class="gallery__btn" id="galPrev" aria-label="Foto anterior">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4M9 5l-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </button>
+            <button class="gallery__btn" id="galNext" aria-label="Foto siguiente">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </button>
+          </div>
         </div>
+        <div class="gallery__viewport" id="galleryViewport" tabindex="0" aria-roledescription="carrusel" aria-label="Fotos del territorio. Use las flechas del teclado para recorrerlas.">
         <div class="gallery__track" id="galleryTrack">
           <figure class="shot shot--wide"><img src="media/img/rio-lejano-1800.webp" srcset="media/img/rio-lejano-900.webp 900w, media/img/rio-lejano-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 50vw" alt="Llanura amazónica con un río serpenteante al fondo" loading="lazy"><figcaption>Llanura aluvial</figcaption></figure>
           <figure class="shot"><img src="media/img/dron-trocha-1800.webp" srcset="media/img/dron-trocha-900.webp 900w, media/img/dron-trocha-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Vista cenital de una trocha en medio del bosque" loading="lazy"><figcaption>Trocha de acceso</figcaption></figure>
@@ -291,7 +302,11 @@
           <figure class="shot"><img src="media/img/medicion-3-1800.webp" srcset="media/img/medicion-3-900.webp 900w, media/img/medicion-3-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Técnico midiendo un árbol con cinta diamétrica" loading="lazy"><figcaption>Medición de diámetro</figcaption></figure>
           <figure class="shot shot--wide"><img src="media/img/dron-bosque-1800.webp" srcset="media/img/dron-bosque-900.webp 900w, media/img/dron-bosque-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 50vw" alt="Bosque amazónico continuo visto desde el aire" loading="lazy"><figcaption>Bosque continuo</figcaption></figure>
           <figure class="shot"><img src="media/img/medicion-4-1800.webp" srcset="media/img/medicion-4-900.webp 900w, media/img/medicion-4-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Brigadista y técnico junto a un árbol codificado" loading="lazy"><figcaption>Árbol codificado</figcaption></figure>
+          <figure class="shot shot--wide"><img src="media/img/rio-meandro-1800.webp" srcset="media/img/rio-meandro-900.webp 900w, media/img/rio-meandro-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 50vw" alt="Meandro de un río amazónico con playas de arena" loading="lazy"><figcaption>Meandro y playas</figcaption></figure>
+          <figure class="shot"><img src="media/img/medicion-1-1800.webp" srcset="media/img/medicion-1-900.webp 900w, media/img/medicion-1-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Brigadista y técnico midiendo el perímetro de un árbol" loading="lazy"><figcaption>Inspección en parcela</figcaption></figure>
         </div>
+        </div>
+        <div class="gallery__bar" aria-hidden="true"><i id="galBar"></i></div>
       </div>
     </section>
 
