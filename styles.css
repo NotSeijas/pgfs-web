@@ -144,7 +144,9 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .hero__title .line > span { display: inline-block; transform: translateY(105%) rotate(4deg); transform-origin: 0 100%; transition: transform 1200ms var(--ease-out); }
 .hero__title .line:nth-child(2) > span { transition-delay: 110ms; }
 .is-ready .hero__title .line > span { transform: none; }
-.hero__lead { max-width: 44ch; margin-top: 26px; font-size: clamp(17px, 1.35vw, 20px); color: #D3DFD3; }
+.hero__sub { display: block; margin-top: 22px; font: 500 clamp(18px, 1.6vw, 24px)/1.25 var(--display); letter-spacing: -0.01em; color: var(--lichen); }
+.is-ready .hero__sub { transition-delay: 260ms; }
+.hero__lead { max-width: 46ch; margin-top: 14px; font-size: clamp(17px, 1.35vw, 20px); color: #D3DFD3; }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 .reveal-hero { opacity: 0; transform: translateY(14px); filter: blur(6px); transition: opacity 800ms var(--ease-out), transform 800ms var(--ease-out), filter 800ms var(--ease-out); }
 .is-ready .reveal-hero { opacity: 1; transform: none; filter: none; }
