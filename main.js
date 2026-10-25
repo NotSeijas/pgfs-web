@@ -482,7 +482,7 @@
     const msg = `Hola PGFS, soy ${nombre.value.trim()} (${tel.value.trim()}). Me interesa: ${form.tipo.value}.` +
       (form.msg.value.trim() ? `\n${form.msg.value.trim()}` : '');
     trackEvent('solicitud_cotizacion', { servicio: form.tipo.value });
-    window.open(`https://wa.me/51900000000?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    window.open(`https://wa.me/51966740171?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
   });
 
   $('#year').textContent = new Date().getFullYear();
