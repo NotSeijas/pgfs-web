@@ -461,6 +461,11 @@
   // enlaces del pie que abren directamente un frente de servicios
   $$('[data-tab-link]').forEach(a => a.addEventListener('click', () => tabs[+a.dataset.tabLink].click()));
 
+  /* ---------- Estadísticas: contactos como eventos en Google Analytics ---------- */
+  const trackEvent = (name, params) => { if (window.gtag) window.gtag('event', name, params); };
+  $$('a[href^="https://wa.me"]').forEach(a => a.addEventListener('click', () => trackEvent('contacto_whatsapp', { ubicacion: a.closest('footer') ? 'pie' : 'contacto' })));
+  $$('a[href^="mailto:"]').forEach(a => a.addEventListener('click', () => trackEvent('contacto_correo')));
+
   /* ---------- Formulario → WhatsApp ---------- */
   const form = $('#form');
   form.addEventListener('submit', e => {
@@ -476,6 +481,7 @@
     err.textContent = '';
     const msg = `Hola PGFS, soy ${nombre.value.trim()} (${tel.value.trim()}). Me interesa: ${form.tipo.value}.` +
       (form.msg.value.trim() ? `\n${form.msg.value.trim()}` : '');
+    trackEvent('solicitud_cotizacion', { servicio: form.tipo.value });
     window.open(`https://wa.me/51900000000?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
   });
 

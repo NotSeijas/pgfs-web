@@ -14,6 +14,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="media/hero-poster.webp">
   <link rel="stylesheet" href="styles.css">
+  <!-- Google Analytics: pegar aquí el ID de medición (G-XXXXXXXXXX). Vacío = desactivado -->
+  <script>
+    (function () {
+      var GA_ID = '';
+      if (!GA_ID) return;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('js', new Date());
+      gtag('config', GA_ID);
+    })();
+  </script>
 </head>
 <body class="is-loading">
 
@@ -381,7 +396,7 @@
     <div class="foot__mark" id="footMark" aria-hidden="true"><span id="footWord">PGFS</span></div>
 
     <div class="foot__row">
-      <span>Consultores &amp; Constructores &amp; PGFS E.I.R.L. · RUC 20XXXXXXXXX</span>
+      <span>Consultores &amp; Constructores &amp; PGFS E.I.R.L. · RUC 20611936991</span>
       <span>© <span id="year">2026</span> · Del bosque a la obra</span>
       <a class="foot__up" href="#inicio">Volver arriba
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16V4M5 9l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
