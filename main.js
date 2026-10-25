@@ -1,6 +1,5 @@
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -423,29 +422,6 @@
       footWord.style.setProperty('--by', `${(20 + p * 60).toFixed(2)}%`);
       footWord.style.setProperty('--bx', `${(50 + mx * 30).toFixed(2)}%`);
     }
-
-    // cursor
-    if (finePointer) {
-      cur.x += (ptr.x - cur.x) * 0.22; cur.y += (ptr.y - cur.y) * 0.22;
-      cursor.style.transform = `translate3d(${cur.x.toFixed(1)}px, ${cur.y.toFixed(1)}px, 0)`;
-    }
-  }
-
-  /* ---------- Cursor ---------- */
-  const cursor = $('#cursor');
-  const cursorLabel = $('#cursorLabel');
-  const cur = { x: -100, y: -100 };
-  if (finePointer) {
-    document.addEventListener('pointerover', e => {
-      const piece = e.target.closest('.piece');
-      const shot = e.target.closest('.shot');
-      const link = e.target.closest('a, button, select, input, textarea');
-      cursor.classList.toggle('is-label', !!(piece || shot));
-      cursorLabel.textContent = piece ? 'Mueve' : shot ? 'Arrastra' : '';
-      cursor.classList.toggle('is-link', !!link && !piece && !shot);
-    });
-    document.addEventListener('pointerleave', () => cursor.classList.add('is-hidden'));
-    document.addEventListener('pointerenter', () => cursor.classList.remove('is-hidden'));
   }
 
   requestAnimationFrame(frame);

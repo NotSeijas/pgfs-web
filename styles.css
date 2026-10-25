@@ -78,23 +78,6 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .loader__count small { font: 400 clamp(18px, 2vw, 26px)/1 var(--display); color: var(--on-dark-2); }
 .loader__caption { position: absolute; top: var(--gutter); left: var(--gutter); font: 400 13px/1 var(--mono); color: var(--on-dark-2); }
 
-/* ---------- Cursor ---------- */
-.cursor { display: none; }
-@media (hover: hover) and (pointer: fine) {
-  .cursor {
-    display: grid; place-items: center;
-    position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none;
-    width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
-    background: var(--lichen); mix-blend-mode: difference;
-    transition: width 300ms var(--ease-out), height 300ms var(--ease-out), margin 300ms var(--ease-out), opacity 200ms ease;
-  }
-  .cursor span { font: 500 12px/1 var(--mono); color: var(--forest-900); opacity: 0; transition: opacity 150ms ease; }
-  .cursor.is-link { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
-  .cursor.is-label { width: 84px; height: 84px; margin: -42px 0 0 -42px; mix-blend-mode: normal; }
-  .cursor.is-label span { opacity: 1; }
-  .cursor.is-hidden { opacity: 0; }
-}
-
 /* ---------- Botones ---------- */
 .btn {
   display: inline-flex; align-items: center; gap: 10px;
