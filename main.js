@@ -1,7 +1,10 @@
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const NS = 'http://www.w3.org/2000/svg';
 
   /* ---------- Ruido 3D (value noise) compartido ---------- */
   const perm = new Uint8Array(512);
@@ -24,11 +27,15 @@
       w);
   }
 
-  /* ---------- Pantalla de carga: anillos de crecimiento ---------- */
+  /* ---------- Video del inicio: versión según pantalla ---------- */
+  const heroVideo = $('#heroVideo');
+  heroVideo.src = innerWidth < 768 ? heroVideo.dataset.srcMobile : heroVideo.dataset.srcDesktop;
+  heroVideo.load();
+
+  /* ---------- Carga: los anillos siguen el progreso real ---------- */
   const rings = $('#rings');
   const count = $('#count');
   const RINGS = 16;
-  const NS = 'http://www.w3.org/2000/svg';
   const ringEls = [];
   for (let k = 1; k <= RINGS; k++) {
     const base = 5 + k * 6 + (k > 10 ? (k - 10) * 0.6 : 0);
@@ -39,8 +46,7 @@
       // irregularidad que crece hacia afuera, como un tronco real
       const wob = (noise(Math.cos(a) * 1.4 + 3, Math.sin(a) * 1.4 + 3, k * 0.08) - 0.5) * (2 + k * 0.9);
       const r = base + wob;
-      const x = Math.cos(a) * r * 1.04, y = Math.sin(a) * r;
-      d += (i ? 'L' : 'M') + x.toFixed(2) + ' ' + y.toFixed(2);
+      d += (i ? 'L' : 'M') + (Math.cos(a) * r * 1.04).toFixed(2) + ' ' + (Math.sin(a) * r).toFixed(2);
     }
     const path = document.createElementNS(NS, 'path');
     path.setAttribute('d', d + 'Z');
@@ -52,82 +58,50 @@
   const pith = document.createElementNS(NS, 'circle');
   pith.setAttribute('r', '3'); pith.setAttribute('class', 'pith');
   rings.appendChild(pith);
+  requestAnimationFrame(() => pith.classList.add('on'));
 
-  const loaded = new Promise(res => (document.readyState === 'complete' ? res() : addEventListener('load', res, { once: true })));
-  const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
-  const stepMs = reduce ? 20 : 95;
+  // tareas que pesan en la carga: fuentes, póster, video listo para reproducir, página completa
+  const tasks = { fonts: 0, poster: 0, video: 0, page: 0 };
+  const weights = { fonts: 0.15, poster: 0.2, video: 0.5, page: 0.15 };
+  const done = k => { tasks[k] = 1; };
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => done('fonts'));
+  { const img = new Image(); img.onload = img.onerror = () => done('poster'); img.src = heroVideo.poster; }
+  if (heroVideo.readyState >= 3) done('video');
+  else ['canplaythrough', 'canplay', 'error'].forEach(ev => heroVideo.addEventListener(ev, () => done('video'), { once: true }));
+  if (document.readyState === 'complete') done('page'); else addEventListener('load', () => done('page'), { once: true });
 
-  function growRings() {
-    return new Promise(res => {
-      requestAnimationFrame(() => pith.classList.add('on'));
-      let i = 0;
-      const tick = () => {
-        ringEls[i].classList.add('on');
-        count.textContent = String(++i).padStart(2, '0');
-        if (i < RINGS) setTimeout(tick, stepMs + i * (reduce ? 0 : 4));
-        else setTimeout(res, reduce ? 50 : 650);
-      };
-      setTimeout(tick, reduce ? 0 : 250);
-    });
+  const loadStart = performance.now();
+  let shown = 0, ringsOn = 0, lastTick = loadStart;
+  function loaderTick(now) {
+    const elapsed = now - loadStart;
+    const tickDt = Math.min(1, (now - lastTick) / 1000); lastTick = now;
+    let target = Object.keys(tasks).reduce((s, k) => s + tasks[k] * weights[k], 0);
+    if (elapsed > 8000) target = 1; // conexión lenta: no retener al visitante
+    const minTime = reduce ? 200 : 1800;
+    // el contador nunca va más rápido que el tiempo mínimo, para que los anillos se lean
+    const cap = Math.min(1, elapsed / minTime);
+    shown += (Math.min(target, cap) - shown) * (reduce ? 1 : 1 - Math.exp(-tickDt * 5));
+    if (Math.min(target, cap) - shown < 0.004) shown = Math.min(target, cap);
+    const pct = Math.round(shown * 100);
+    count.textContent = String(pct);
+    const want = Math.round(shown * RINGS);
+    while (ringsOn < want) ringEls[ringsOn++].classList.add('on');
+    if (pct >= 100) { clearInterval(loaderTimer); setTimeout(finishLoading, reduce ? 0 : 450); }
   }
+  // temporizador en vez de cuadros: la carga avanza aunque la pestaña esté en segundo plano
+  const loaderTimer = setInterval(() => loaderTick(performance.now()), 16);
 
-  Promise.all([growRings(), Promise.race([Promise.all([loaded, fonts]), new Promise(r => setTimeout(r, 5000))])]).then(() => {
+  function finishLoading() {
     $('#loader').classList.add('is-done');
     document.body.classList.remove('is-loading');
-    setTimeout(() => { document.body.classList.add('is-ready'); heroIntro(); }, reduce ? 0 : 350);
-    setTimeout(() => $('#loader').remove(), 1400);
-  });
-
-  /* ---------- Hero: cordilleras con neblina ---------- */
-  const hero = $('.hero');
-  const ridgesBox = $('#ridges');
-  const RIDGE_COLORS = ['#C3D1C2', '#A3BBA4', '#7E9E83', '#557D5E', '#2F5A3E', '#0B231A'];
-  const RIDGE_BASE = [0.12, 0.3, 0.45, 0.6, 0.74, 0.88];
-  const RIDGE_AMP = [0.2, 0.17, 0.14, 0.11, 0.09, 0.05];
-  let ridgeEls = [];
-  const mists = $$('.mist', hero);
-
-  function buildRidges() {
-    const w = ridgesBox.clientWidth, hgt = ridgesBox.clientHeight;
-    ridgeEls.forEach(r => r.remove());
-    ridgeEls = RIDGE_COLORS.map((color, i) => {
-      const yAt = x => hgt * (RIDGE_BASE[i] + RIDGE_AMP[i] * (noise(x / (260 + i * 60), i * 3.7, 0.5) * 1.4 - 0.7 + noise(x / 90, i * 9, 2) * 0.3));
-      let d = `M0 ${hgt} L0 ${yAt(0).toFixed(1)}`;
-      for (let x = 8; x <= w; x += 8) d += ` L${x} ${yAt(x).toFixed(1)}`;
-      d += ` L${w} ${hgt} Z`;
-      // pinos sobre las crestas cercanas, agrupados en manchas de bosque
-      if (i >= 2) {
-        const step = 5 + i * 2.5;
-        for (let x = 0; x < w; x += step) {
-          if (noise(x / 120, i * 5, 7) < 0.48) continue;
-          const jitter = h(Math.floor(x), i, 3);
-          const th = (5 + i * 4.5) * (0.7 + jitter * 0.7);
-          const y = yAt(x) + 2;
-          d += ` M${(x - th * 0.26).toFixed(1)} ${y.toFixed(1)} L${x.toFixed(1)} ${(y - th).toFixed(1)} L${(x + th * 0.26).toFixed(1)} ${y.toFixed(1)} Z`;
-        }
-      }
-      const svg = document.createElementNS(NS, 'svg');
-      svg.setAttribute('class', 'ridge');
-      svg.setAttribute('viewBox', `0 0 ${w} ${hgt}`);
-      svg.setAttribute('preserveAspectRatio', 'none');
-      svg.style.setProperty('--rise', `${30 + i * 22}px`);
-      svg.style.setProperty('--rd', `${120 + i * 90}ms`);
-      svg.innerHTML = `<path fill="${color}" d="${d}"/>`;
-      ridgesBox.appendChild(svg);
-      return svg;
-    });
-    // las capas de neblina se intercalan entre las cordilleras
-    ridgeEls[1].after(mists[0]); ridgeEls[3].after(mists[1]); ridgeEls[4].after(mists[2]);
-    if (document.body.classList.contains('is-ready')) ridgeEls.forEach(r => r.classList.add('moving'));
+    heroVideo.play().catch(() => {});
+    setTimeout(() => { document.body.classList.add('is-ready'); heroIntro(); }, reduce ? 0 : 300);
+    setTimeout(() => $('#loader').remove(), 1500);
   }
-  buildRidges();
-
-  // parallax suave de las capas con el cursor
-  const par = { x: 0, tx: 0 };
-  hero.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') par.tx = e.clientX / innerWidth - 0.5; });
-  hero.addEventListener('pointerleave', () => { par.tx = 0; });
 
   /* ---------- Piezas colgantes: péndulos con viento ---------- */
+  const hero = $('.hero');
+  const heroSticky = $('.hero__sticky');
   const mobile = $('#mobile');
   const branch = $('.branch', mobile);
   const hangers = $$('.hanger', mobile).map((el, i) => ({
@@ -139,7 +113,7 @@
 
   function layoutHangers() {
     const bw = branch.clientWidth, bh = branch.clientHeight;
-    const base = Math.max(innerWidth < 600 ? 40 : 90, Math.min(260, hero.clientHeight * 0.27, innerWidth * 0.16));
+    const base = Math.max(innerWidth < 600 ? 40 : 90, Math.min(260, heroSticky.clientHeight * 0.27, innerWidth * 0.16));
     hangers.forEach(p => {
       p.ax = p.fx * bw; p.ay = p.fy * bh;
       p.L = base * p.lenK;
@@ -147,7 +121,6 @@
     });
   }
   layoutHangers();
-  addEventListener('resize', () => { clearTimeout(layoutHangers.t); layoutHangers.t = setTimeout(() => { buildRidges(); layoutHangers(); }, 150); });
 
   addEventListener('pointermove', e => {
     const now = performance.now();
@@ -158,45 +131,29 @@
   }, { passive: true });
 
   hangers.forEach(p => {
-    p.piece.addEventListener('pointerdown', e => {
-      p.drag = true; p.piece.setPointerCapture(e.pointerId);
-    });
+    p.piece.addEventListener('pointerdown', e => { p.drag = true; p.piece.setPointerCapture(e.pointerId); });
     const release = () => { p.drag = false; };
     p.piece.addEventListener('pointerup', release);
     p.piece.addEventListener('pointercancel', release);
   });
 
-  let heroVisible = true, lastT = performance.now(), clock = 0;
-  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(hero);
-
-  function physics(now) {
-    requestAnimationFrame(physics);
-    const dt = Math.min(0.033, (now - lastT) / 1000); lastT = now;
-    if (!heroVisible || document.hidden) return;
-    clock += dt;
-
-    // parallax de cordilleras
-    if (!reduce && document.body.classList.contains('is-ready')) {
-      par.x += (par.tx - par.x) * 0.06;
-      ridgeEls.forEach((r, i) => { if (r.classList.contains('moving')) r.style.transform = `translate3d(${(-par.x * (i + 1) * 9).toFixed(2)}px,0,0)`; });
-    }
+  let clock = 0;
+  function swing(dt) {
     if (reduce) {
       hangers.forEach(p => { p.el.style.transform = `translate(${p.ax}px, ${p.ay}px)`; });
       return;
     }
-
+    clock += dt;
     const mRect = mobile.getBoundingClientRect();
     // brisa de fondo con ráfagas ocasionales
     const breeze = (noise(clock * 0.35, 1.3, 4) - 0.5) * 2.2 + Math.max(0, noise(clock * 0.12, 8, 1) - 0.62) * 9;
     ptr.vx *= 0.92;
-
     hangers.forEach(p => {
-      const Lm = p.L / 260;
-      const k = 9.8 / Lm;
-      let acc;
+      const k = 9.8 / (p.L / 260);
       const px = mRect.left + p.ax, py = mRect.top + p.ay;
+      let acc;
       if (p.drag) {
-        const target = Math.max(-1.2, Math.min(1.2, -Math.atan2(ptr.x - px, Math.max(20, ptr.y - py))));
+        const target = clamp(-Math.atan2(ptr.x - px, Math.max(20, ptr.y - py)), -1.2, 1.2);
         acc = (target - p.a) * 60 - p.v * 10;
       } else {
         acc = -k * Math.sin(p.a) - p.v * 0.55 + breeze * (0.5 + p.i * 0.25) / (1 + p.lenK);
@@ -213,34 +170,72 @@
       p.piece.style.transform = `rotate(${p.b.toFixed(4)}rad)`;
     });
   }
-  requestAnimationFrame(physics);
 
-  // al terminar la carga, una ráfaga hace que todo se mezca
   function heroIntro() {
     if (reduce) return;
-    setTimeout(() => ridgeEls.forEach(r => r.classList.add('moving')), 2100);
     setTimeout(() => hangers.forEach((p, i) => { p.v = (i % 2 ? -1 : 1) * (1.4 + i * 0.3); }), 900);
   }
 
-  /* ---------- Navegación ---------- */
-  const nav = $('#nav');
-  let lastY = scrollY;
-  addEventListener('scroll', () => {
-    const y = scrollY;
-    nav.classList.toggle('is-scrolled', y > 40);
-    if (!nav.classList.contains('menu-open')) nav.classList.toggle('is-hidden', y > lastY && y > 400);
-    lastY = y;
-  }, { passive: true });
-  const burger = $('#burger');
-  burger.addEventListener('click', () => {
-    const open = nav.classList.toggle('menu-open');
-    burger.setAttribute('aria-expanded', open);
-  });
-  $$('.nav__links a').forEach(a => a.addEventListener('click', () => {
-    nav.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false');
-  }));
+  /* ---------- Quiénes somos: palabras que se encienden ---------- */
+  const aboutText = $('#aboutText');
+  aboutText.innerHTML = aboutText.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+  const words = $$('.w', aboutText);
 
-  /* ---------- Revelado al hacer scroll ---------- */
+  /* ---------- Franja: velocidad ligada al scroll ---------- */
+  const ticker = $('#ticker');
+  ticker.innerHTML += ticker.innerHTML;
+  let tickX = 0, tickDir = 1;
+
+  /* ---------- Servicios: pestañas y acordeón ---------- */
+  const tabs = $$('.tab');
+  const panels = $$('.svc');
+  const media = $$('.svc-media img');
+  panels.forEach(pn => $$('.svc__item', pn).forEach((li, i) => li.style.setProperty('--i', i)));
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const n = +t.dataset.tab;
+    tabs.forEach(o => { const on = o === t; o.classList.toggle('is-active', on); o.setAttribute('aria-selected', on); });
+    panels.forEach(pn => pn.classList.toggle('is-active', +pn.dataset.panel === n));
+    media.forEach((m, i) => {
+      if (m.classList.contains('is-active') && i !== n) {
+        m.classList.remove('is-active'); m.classList.add('is-leaving');
+        setTimeout(() => m.classList.remove('is-leaving'), 900);
+      }
+    });
+    media[n].classList.add('is-active');
+  }));
+  $$('.svc__item').forEach(item => {
+    const btn = $('.svc__row', item);
+    btn.addEventListener('click', () => {
+      const open = !item.classList.contains('open');
+      $$('.svc__item.open', item.parentElement).forEach(o => { o.classList.remove('open'); $('.svc__row', o).setAttribute('aria-expanded', 'false'); });
+      item.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+    });
+  });
+
+  /* ---------- En campo ---------- */
+  const fieldSec = $('#campo');
+  const layers = $$('.field__layer');
+  const steps = $$('.step');
+  const fieldBar = $('#fieldBar');
+  const fieldVideo = layers[0];
+  let fieldVideoLoaded = false, activeStep = -1;
+
+  /* ---------- Visión, galería, pie ---------- */
+  const vision = $('.vision');
+  const visionFrame = $('#visionFrame');
+  const gallery = $('.gallery');
+  const track = $('#galleryTrack');
+  const shots = $$('.shot img');
+  const footBig = $('.foot__big');
+  function sizeGallery() {
+    gallery.style.height = `${track.scrollWidth - innerWidth + innerHeight}px`;
+  }
+  sizeGallery();
+  addEventListener('load', sizeGallery);
+  $$('img', track).forEach(img => img.addEventListener('load', sizeGallery));
+
+  /* ---------- Revelado al entrar ---------- */
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -12% 0px' });
@@ -250,41 +245,167 @@
     io.observe(el);
   });
 
-  /* ---------- Servicios: acordeón ---------- */
-  $$('.svc__item').forEach(item => {
-    const btn = $('.svc__row', item);
-    btn.addEventListener('click', () => {
-      const open = !item.classList.contains('open');
-      $$('.svc__item.open').forEach(o => { o.classList.remove('open'); $('.svc__row', o).setAttribute('aria-expanded', 'false'); });
-      item.classList.toggle('open', open);
-      btn.setAttribute('aria-expanded', open);
-    });
-  });
+  /* ---------- Bucle único: todo lo que depende del scroll ---------- */
+  const heroFrame = $('#heroFrame');
+  const heroInner = $('#heroInner');
+  const progressOf = (el, startOffset = 0) => {
+    const r = el.getBoundingClientRect();
+    const total = r.height - innerHeight;
+    return clamp((-r.top + startOffset) / (total || 1), 0, 1);
+  };
+  let lastScroll = scrollY, scrollVel = 0, last = performance.now(), heroOnScreen = true;
 
-  /* ---------- Transecto + parallax ligados al scroll ---------- */
-  const transect = $('#transect');
-  const tPath = $('#transectPath');
-  tPath.setAttribute('pathLength', '1');
-  const stops = $$('.transect__stops li');
-  const bandImg = $('#bandImg');
-  const band = $('.band');
-  let ticking = false;
-  function onScroll() {
-    ticking = false;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    const y = scrollY;
+    scrollVel = scrollVel * 0.85 + (y - lastScroll) * 0.15;
+    lastScroll = y;
     const vh = innerHeight;
-    const r = transect.getBoundingClientRect();
-    const p = Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.7)));
-    tPath.style.strokeDashoffset = reduce ? 0 : 1 - p;
-    if (p > 0.05) transect.classList.add('in');
-    stops.forEach((s, i) => { if (reduce || p > 0.12 + i * 0.22) s.classList.add('in'); });
-    const br = band.getBoundingClientRect();
-    if (!reduce && br.bottom > 0 && br.top < vh) {
-      const k = (br.top + br.height / 2 - vh / 2) / vh;
-      bandImg.style.transform = `translate3d(0, ${(k * -10).toFixed(2)}%, 0)`;
+
+    // inicio: el video se recoge en un marco redondeado y el texto sube
+    const hr = hero.getBoundingClientRect();
+    heroOnScreen = hr.bottom > 0;
+    if (heroOnScreen) {
+      const p = reduce ? 0 : progressOf(hero);
+      heroFrame.style.setProperty('--ci', `${(p * 7).toFixed(2)}vh`);
+      heroFrame.style.setProperty('--cx', `${(p * 5).toFixed(2)}vw`);
+      heroFrame.style.setProperty('--cr', `${(p * 28).toFixed(1)}px`);
+      heroInner.style.setProperty('--ty', `${(-p * 140).toFixed(1)}px`);
+      heroInner.style.setProperty('--op', (1 - p * 1.7).toFixed(3));
+      mobile.style.setProperty('--my', `${(-p * 260).toFixed(1)}px`);
+      swing(dt);
+      if (heroVideo.paused && document.body.classList.contains('is-ready') && !document.hidden) heroVideo.play().catch(() => {});
+    } else if (!heroVideo.paused) heroVideo.pause();
+
+    // franja: avanza sola y acelera con el scroll
+    if (!reduce) {
+      if (Math.abs(scrollVel) > 0.5) tickDir = Math.sign(scrollVel);
+      tickX -= (60 + Math.min(900, Math.abs(scrollVel) * 40)) * dt * tickDir;
+      const half = ticker.scrollWidth / 2;
+      if (tickX <= -half) tickX += half;
+      if (tickX > 0) tickX -= half;
+      ticker.style.transform = `translate3d(${tickX.toFixed(1)}px,0,0)`;
+    }
+
+    // palabras de "Quiénes somos"
+    const ar = aboutText.getBoundingClientRect();
+    if (ar.top < vh && ar.bottom > 0) {
+      const p = reduce ? 1 : clamp((vh * 0.85 - ar.top) / (ar.height + vh * 0.35), 0, 1);
+      const lit = Math.round(p * words.length);
+      words.forEach((w, i) => w.classList.toggle('on', i < lit));
+    }
+
+    // en campo: el paso más cercano al centro manda la imagen
+    const fr = fieldSec.getBoundingClientRect();
+    if (fr.top < vh && fr.bottom > 0) {
+      let best = 0, bestD = Infinity;
+      steps.forEach((s, i) => {
+        const r = s.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - vh * 0.55);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      if (best !== activeStep) {
+        activeStep = best;
+        steps.forEach((s, i) => s.classList.toggle('is-active', i === best));
+        layers.forEach((l, i) => l.classList.toggle('is-active', i === best));
+      }
+      if (!fieldVideoLoaded) { fieldVideo.src = fieldVideo.dataset.src; fieldVideoLoaded = true; }
+      if (activeStep === 0 && fieldVideo.paused) fieldVideo.play().catch(() => {});
+      if (activeStep !== 0 && !fieldVideo.paused) fieldVideo.pause();
+      const fp = clamp(-fr.top / (fr.height - vh), 0, 1);
+      fieldBar.style.setProperty('--p', fp.toFixed(3));
+    } else if (fieldVideoLoaded && !fieldVideo.paused) fieldVideo.pause();
+
+    // visión: la foto se abre hasta ocupar la pantalla
+    const vr = vision.getBoundingClientRect();
+    if (vr.top < vh && vr.bottom > 0) {
+      const p = reduce ? 1 : clamp(-vr.top / (vr.height - vh) * 1.25, 0, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      visionFrame.style.setProperty('--vi', `${(18 * (1 - e)).toFixed(2)}%`);
+      visionFrame.style.setProperty('--vx', `${(22 * (1 - e)).toFixed(2)}%`);
+      visionFrame.style.setProperty('--vr', `${(24 * (1 - e)).toFixed(1)}px`);
+      visionFrame.style.setProperty('--vz', (1.25 - 0.25 * e).toFixed(4));
+      visionFrame.style.setProperty('--vo', clamp((p - 0.45) / 0.4, 0, 1).toFixed(3));
+    }
+
+    // galería horizontal
+    const gr = gallery.getBoundingClientRect();
+    if (gr.top < vh && gr.bottom > 0) {
+      const p = clamp(-gr.top / (gr.height - vh), 0, 1);
+      const max = track.scrollWidth - innerWidth;
+      track.style.transform = `translate3d(${(-p * max).toFixed(1)}px,0,0)`;
+      if (!reduce) shots.forEach(img => {
+        const r = img.parentElement.getBoundingClientRect();
+        const c = (r.left + r.width / 2) / innerWidth - 0.5;
+        img.style.setProperty('--sx', `${(c * -8).toFixed(2)}%`);
+      });
+    }
+
+    // pie: las letras grandes suben al llegar
+    const fbr = footBig.getBoundingClientRect();
+    if (fbr.top < vh) {
+      const p = clamp((vh - fbr.top) / (fbr.height + 120), 0, 1);
+      footBig.style.setProperty('--fy', `${(40 * (1 - p)).toFixed(2)}%`);
+    }
+
+    // cursor
+    if (finePointer) {
+      cur.x += (ptr.x - cur.x) * 0.22; cur.y += (ptr.y - cur.y) * 0.22;
+      cursor.style.transform = `translate3d(${cur.x.toFixed(1)}px, ${cur.y.toFixed(1)}px, 0)`;
     }
   }
-  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-  onScroll();
+
+  /* ---------- Cursor ---------- */
+  const cursor = $('#cursor');
+  const cursorLabel = $('#cursorLabel');
+  const cur = { x: -100, y: -100 };
+  if (finePointer) {
+    document.addEventListener('pointerover', e => {
+      const piece = e.target.closest('.piece');
+      const shot = e.target.closest('.shot');
+      const link = e.target.closest('a, button, select, input, textarea');
+      cursor.classList.toggle('is-label', !!(piece || shot));
+      cursorLabel.textContent = piece ? 'Mueve' : shot ? 'Baja' : '';
+      cursor.classList.toggle('is-link', !!link && !piece && !shot);
+    });
+    document.addEventListener('pointerleave', () => cursor.classList.add('is-hidden'));
+    document.addEventListener('pointerenter', () => cursor.classList.remove('is-hidden'));
+  }
+
+  requestAnimationFrame(frame);
+
+  addEventListener('resize', () => {
+    clearTimeout(layoutHangers.t);
+    layoutHangers.t = setTimeout(() => { layoutHangers(); sizeGallery(); }, 150);
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { heroVideo.pause(); fieldVideo.pause(); } });
+
+  /* ---------- Navegación ---------- */
+  const nav = $('#nav');
+  let navY = scrollY;
+  addEventListener('scroll', () => {
+    const y = scrollY;
+    nav.classList.toggle('is-scrolled', y > 40);
+    if (!nav.classList.contains('menu-open')) nav.classList.toggle('is-hidden', y > navY && y > 400);
+    navY = y;
+  }, { passive: true });
+  const burger = $('#burger');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('menu-open');
+    burger.setAttribute('aria-expanded', open);
+  });
+  $$('.nav__links a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false');
+  }));
+  // anclas con desplazamiento suave (la galería y el inicio usan secciones altas)
+  $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const target = $(a.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const top = a.getAttribute('href') === '#inicio' ? 0 : target.getBoundingClientRect().top + scrollY - (target.id === 'campo' || target.id === 'territorio' ? 0 : 70);
+    scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+  }));
 
   /* ---------- Formulario → WhatsApp ---------- */
   const form = $('#form');

@@ -4,24 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PGFS · Consultores &amp; Constructores</title>
-  <meta name="description" content="Consultoría ambiental, gestión forestal y construcción. Consultores & Constructores PGFS E.I.R.L.">
+  <meta name="description" content="Consultores & Constructores & PGFS E.I.R.L.: consultoría y supervisión forestal, estudios ambientales, SIG y teledetección, ingeniería y construcción para el sector público y privado.">
   <meta name="theme-color" content="#0B231A">
+  <meta property="og:title" content="Consultores & Constructores & PGFS E.I.R.L.">
+  <meta property="og:description" content="Del bosque a la obra: gestión forestal, consultoría ambiental e ingeniería en un solo aliado técnico.">
+  <meta property="og:image" content="media/hero-poster.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="media/hero-poster.webp">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="is-loading">
 
-  <!-- Pantalla de carga: anillos de crecimiento de un tronco -->
+  <!-- Carga: los anillos del tronco crecen con el progreso real -->
   <div class="loader" id="loader" aria-hidden="true">
-    <svg class="loader__rings" viewBox="-110 -110 220 220" id="rings"></svg>
-    <div class="loader__meta">
-      <span class="loader__brand">PGFS</span>
-      <span class="loader__count"><span id="count">0</span><small>anillos</small></span>
+    <div class="loader__stage">
+      <svg class="loader__rings" viewBox="-110 -110 220 220" id="rings"></svg>
     </div>
     <p class="loader__caption">Leyendo el territorio</p>
+    <div class="loader__meta">
+      <span class="loader__brand">PGFS</span>
+      <span class="loader__count"><span id="count">0</span><small>%</small></span>
+    </div>
   </div>
+
+  <div class="cursor" id="cursor" aria-hidden="true"><span id="cursorLabel"></span></div>
 
   <header class="nav" id="nav">
     <a class="nav__logo" href="#inicio" aria-label="PGFS, inicio">
@@ -33,9 +41,10 @@
       <span><strong>PGFS</strong><em>Consultores &amp; Constructores</em></span>
     </a>
     <nav class="nav__links" aria-label="Principal">
+      <a href="#nosotros">Nosotros</a>
       <a href="#servicios">Servicios</a>
-      <a href="#proceso">Proceso</a>
-      <a href="#ambitos">Ámbitos</a>
+      <a href="#campo">En campo</a>
+      <a href="#territorio">Territorio</a>
       <a href="#contacto">Contacto</a>
     </nav>
     <a class="btn btn--small" href="#contacto">Cotizar proyecto</a>
@@ -43,256 +52,276 @@
   </header>
 
   <main>
-    <!-- HERO: amanecer con neblina y una rama de la que cuelgan piezas al viento -->
+    <!-- HERO: video de dron que se recoge en un marco al bajar -->
     <section class="hero" id="inicio">
-      <div class="hero__sky" aria-hidden="true">
-        <div class="hero__sun"></div>
-        <div class="hero__ridges" id="ridges"></div>
-        <div class="mist mist--a"></div>
-        <div class="mist mist--b"></div>
-        <div class="mist mist--c"></div>
-      </div>
+      <div class="hero__sticky">
+        <div class="hero__frame" id="heroFrame">
+          <video class="hero__video" id="heroVideo" muted loop playsinline preload="auto" poster="media/hero-poster.webp"
+                 data-src-desktop="media/hero-720.mp4" data-src-mobile="media/hero-mobile.mp4"></video>
+          <div class="hero__veil"></div>
+        </div>
 
-      <div class="mobile" id="mobile" aria-hidden="true">
-        <svg class="branch" viewBox="0 0 900 220" preserveAspectRatio="xMaxYMin meet">
-          <defs>
-            <linearGradient id="bark" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#4A3524"/><stop offset="1" stop-color="#2A1D13"/>
-            </linearGradient>
-            <path id="leaf" d="M0 0 C 10 -9, 30 -9, 42 0 C 30 9, 10 9, 0 0 Z"/>
-          </defs>
-          <path fill="url(#bark)" d="M900 18 C 820 30, 760 52, 680 62 C 600 72, 520 66, 430 80 C 360 90, 300 108, 236 112 C 230 112, 226 109, 228 104 C 300 94, 360 78, 428 66 C 520 50, 600 56, 676 46 C 756 36, 820 14, 900 0 Z"/>
-          <path fill="url(#bark)" d="M612 58 C 590 40, 566 28, 534 22 C 532 18, 536 16, 540 17 C 572 22, 600 34, 622 54 Z"/>
-          <path fill="url(#bark)" d="M380 84 C 368 104, 352 120, 330 130 C 326 130, 326 126, 328 124 C 348 112, 362 98, 372 80 Z"/>
-          <g class="branch__leaves">
-            <use href="#leaf" fill="#3E7149" transform="translate(536 20) rotate(-160)"/>
-            <use href="#leaf" fill="#56865A" transform="translate(548 22) rotate(-120)"/>
-            <use href="#leaf" fill="#2F5D3A" transform="translate(330 128) rotate(110)"/>
-            <use href="#leaf" fill="#56865A" transform="translate(332 126) rotate(160)"/>
-            <use href="#leaf" fill="#3E7149" transform="translate(236 110) rotate(170)"/>
-            <use href="#leaf" fill="#2F5D3A" transform="translate(240 108) rotate(-150)"/>
-            <use href="#leaf" fill="#56865A" transform="translate(470 74) rotate(70)"/>
-            <use href="#leaf" fill="#3E7149" transform="translate(700 56) rotate(100)"/>
-            <use href="#leaf" fill="#2F5D3A" transform="translate(760 44) rotate(-80)"/>
-          </g>
-        </svg>
+        <div class="mobile" id="mobile" aria-hidden="true">
+          <svg class="branch" viewBox="0 0 900 220" preserveAspectRatio="xMaxYMin meet">
+            <defs>
+              <linearGradient id="bark" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#5A4230"/><stop offset="1" stop-color="#2A1D13"/>
+              </linearGradient>
+              <path id="leaf" d="M0 0 C 10 -9, 30 -9, 42 0 C 30 9, 10 9, 0 0 Z"/>
+            </defs>
+            <path fill="url(#bark)" d="M900 18 C 820 30, 760 52, 680 62 C 600 72, 520 66, 430 80 C 360 90, 300 108, 236 112 C 230 112, 226 109, 228 104 C 300 94, 360 78, 428 66 C 520 50, 600 56, 676 46 C 756 36, 820 14, 900 0 Z"/>
+            <path fill="url(#bark)" d="M612 58 C 590 40, 566 28, 534 22 C 532 18, 536 16, 540 17 C 572 22, 600 34, 622 54 Z"/>
+            <path fill="url(#bark)" d="M380 84 C 368 104, 352 120, 330 130 C 326 130, 326 126, 328 124 C 348 112, 362 98, 372 80 Z"/>
+            <g>
+              <use href="#leaf" fill="#4E8A57" transform="translate(536 20) rotate(-160)"/>
+              <use href="#leaf" fill="#6FA06A" transform="translate(548 22) rotate(-120)"/>
+              <use href="#leaf" fill="#3E7149" transform="translate(330 128) rotate(110)"/>
+              <use href="#leaf" fill="#6FA06A" transform="translate(332 126) rotate(160)"/>
+              <use href="#leaf" fill="#4E8A57" transform="translate(236 110) rotate(170)"/>
+              <use href="#leaf" fill="#3E7149" transform="translate(240 108) rotate(-150)"/>
+              <use href="#leaf" fill="#6FA06A" transform="translate(470 74) rotate(70)"/>
+              <use href="#leaf" fill="#4E8A57" transform="translate(700 56) rotate(100)"/>
+              <use href="#leaf" fill="#3E7149" transform="translate(760 44) rotate(-80)"/>
+            </g>
+          </svg>
 
-        <!-- Placa de inventario forestal -->
-        <div class="hanger" data-x="0.55" data-y="0.305" data-len="0.62" style="--w: clamp(120px, 12vw, 170px)">
-          <i class="string"></i>
-          <div class="piece">
-            <svg viewBox="0 0 170 120">
-              <defs>
-                <linearGradient id="alu" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#F1F4EF"/><stop offset="0.45" stop-color="#C5CEC6"/><stop offset="0.55" stop-color="#DCE3DB"/><stop offset="1" stop-color="#A7B3AA"/>
-                </linearGradient>
-              </defs>
-              <rect x="3" y="3" width="164" height="114" rx="12" fill="url(#alu)" stroke="#8C988F" stroke-width="2"/>
-              <circle cx="85" cy="16" r="5" fill="#5B665E"/>
-              <text x="85" y="58" text-anchor="middle" class="tag-brand">PGFS</text>
-              <text x="85" y="80" text-anchor="middle" class="tag-small">INVENTARIO FORESTAL</text>
-              <line x1="22" y1="90" x2="148" y2="90" stroke="#8C988F" stroke-width="1"/>
-              <text x="85" y="106" text-anchor="middle" class="tag-num">Nº 0127 · CEDRELA</text>
-            </svg>
+          <div class="hanger" data-x="0.55" data-y="0.305" data-len="0.62" style="--w: clamp(120px, 12vw, 170px)">
+            <i class="string"></i>
+            <div class="piece">
+              <svg viewBox="0 0 170 120">
+                <defs>
+                  <linearGradient id="alu" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#F1F4EF"/><stop offset="0.45" stop-color="#C5CEC6"/><stop offset="0.55" stop-color="#DCE3DB"/><stop offset="1" stop-color="#A7B3AA"/>
+                  </linearGradient>
+                </defs>
+                <rect x="3" y="3" width="164" height="114" rx="12" fill="url(#alu)" stroke="#8C988F" stroke-width="2"/>
+                <circle cx="85" cy="16" r="5" fill="#5B665E"/>
+                <text x="85" y="58" text-anchor="middle" class="tag-brand">PGFS</text>
+                <text x="85" y="80" text-anchor="middle" class="tag-small">INVENTARIO FORESTAL</text>
+                <line x1="22" y1="90" x2="148" y2="90" stroke="#8C988F" stroke-width="1"/>
+                <text x="85" y="106" text-anchor="middle" class="tag-num">Nº 0127 · CEDRELA</text>
+              </svg>
+            </div>
+          </div>
+          <div class="hanger" data-x="0.86" data-y="0.17" data-len="1" style="--w: clamp(40px, 4vw, 56px)">
+            <i class="string"></i>
+            <div class="piece">
+              <svg viewBox="0 0 56 110">
+                <defs>
+                  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#7A4A1C"/><stop offset="0.35" stop-color="#E2A55C"/><stop offset="0.55" stop-color="#F6D29A"/><stop offset="1" stop-color="#8A5422"/>
+                  </linearGradient>
+                </defs>
+                <rect x="22" y="0" width="12" height="12" rx="3" fill="url(#brass)"/>
+                <path d="M8 14 H48 L46 40 L28 108 L10 40 Z" fill="url(#brass)"/>
+                <path d="M8 14 H48 L47 22 H9 Z" fill="#5E3714" opacity=".35"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hanger" data-x="0.7" data-y="0.27" data-len="0.4" style="--w: clamp(44px, 4.4vw, 62px)">
+            <i class="string"></i>
+            <div class="piece">
+              <svg viewBox="0 0 60 100">
+                <path d="M30 4 C 52 28, 56 64, 30 96 C 4 64, 8 28, 30 4 Z" fill="#C9E265"/>
+                <path d="M30 4 V 96 M30 40 L 44 28 M30 56 L 16 44 M30 72 L 44 60" stroke="#6E8A2E" stroke-width="2" fill="none"/>
+              </svg>
+            </div>
           </div>
         </div>
 
-        <!-- Plomada de bronce -->
-        <div class="hanger" data-x="0.86" data-y="0.17" data-len="1" style="--w: clamp(40px, 4vw, 56px)">
-          <i class="string"></i>
-          <div class="piece">
-            <svg viewBox="0 0 56 110">
-              <defs>
-                <linearGradient id="brass" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stop-color="#7A4A1C"/><stop offset="0.35" stop-color="#E2A55C"/><stop offset="0.55" stop-color="#F6D29A"/><stop offset="1" stop-color="#8A5422"/>
-                </linearGradient>
-              </defs>
-              <rect x="22" y="0" width="12" height="12" rx="3" fill="url(#brass)"/>
-              <path d="M8 14 H48 L46 40 L28 108 L10 40 Z" fill="url(#brass)"/>
-              <path d="M8 14 H48 L47 22 H9 Z" fill="#5E3714" opacity=".35"/>
-            </svg>
+        <div class="hero__inner" id="heroInner">
+          <h1 class="hero__title">
+            <span class="line"><span>Del bosque</span></span>
+            <span class="line"><span>a la <em>obra</em>.</span></span>
+          </h1>
+          <p class="hero__lead reveal-hero">Consultoría forestal, estudios ambientales e ingeniería civil en un solo aliado técnico para instituciones públicas y empresas privadas.</p>
+          <div class="hero__actions reveal-hero">
+            <a class="btn" href="#contacto">Solicitar evaluación
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </a>
+            <a class="btn btn--ghost" href="#servicios">Ver servicios</a>
           </div>
         </div>
 
-        <!-- Hoja suelta colgando de un hilo -->
-        <div class="hanger" data-x="0.7" data-y="0.27" data-len="0.4" style="--w: clamp(44px, 4.4vw, 62px)">
-          <i class="string"></i>
-          <div class="piece piece--leaf">
-            <svg viewBox="0 0 60 100">
-              <path d="M30 4 C 52 28, 56 64, 30 96 C 4 64, 8 28, 30 4 Z" fill="#C9E265"/>
-              <path d="M30 4 V 96 M30 40 L 44 28 M30 56 L 16 44 M30 72 L 44 60" stroke="#6E8A2E" stroke-width="2" fill="none"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero__inner">
-        <h1 class="hero__title">
-          <span class="line"><span>Ingeniería que</span></span>
-          <span class="line"><span>respeta el <em>territorio</em>.</span></span>
-        </h1>
-        <p class="hero__lead reveal-hero">Estudios ambientales, gestión forestal y obras civiles en un solo equipo técnico. Del inventario de campo al expediente aprobado, y del expediente a la obra terminada.</p>
-        <div class="hero__actions reveal-hero">
-          <a class="btn" href="#contacto">Solicitar evaluación
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-          </a>
-          <a class="btn btn--ghost" href="#servicios">Ver servicios</a>
+        <div class="hero__foot reveal-hero" aria-hidden="true">
+          <span>Toma con dron · Amazonía peruana</span>
+          <span class="hero__scrollhint">Desliza<i></i></span>
         </div>
       </div>
     </section>
 
-    <!-- Dos disciplinas -->
-    <section class="split" id="disciplinas">
-      <div class="split__intro">
-        <h2 class="reveal">Dos disciplinas,<br>un mismo terreno.</h2>
-        <p class="reveal">Donde otros separan al consultor del constructor, nosotros los sentamos en la misma mesa. El que estudia el bosque es el que cuida que la obra lo respete.</p>
+    <!-- Franja en movimiento: su velocidad responde al scroll -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker__track" id="ticker">
+        <span>Supervisión forestal</span><span>Inspecciones CITES</span><span>Inventarios forestales</span><span>Planes de manejo</span><span>Carbono en bosques tropicales</span><span>Drones y teledetección</span><span>SIG y cartografía</span><span>Obras civiles</span><span>Contrataciones con el Estado</span>
       </div>
-      <article class="split__card reveal">
-        <figure class="split__media">
-          <img src="https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=1400&q=70&auto=format&fit=crop" alt="Bosque cubierto de neblina visto desde lo alto" loading="lazy">
-        </figure>
-        <div class="split__text">
-          <h3>Consultoría ambiental y forestal</h3>
-          <p>Instrumentos de gestión ambiental, línea base biológica, inventarios forestales y planes de manejo ante la autoridad competente.</p>
-        </div>
-      </article>
-      <article class="split__card split__card--offset reveal">
-        <figure class="split__media">
-          <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=1400&q=70&auto=format&fit=crop" alt="Estructura metálica de una obra en construcción" loading="lazy">
-        </figure>
-        <div class="split__text">
-          <h3>Construcción y obras civiles</h3>
-          <p>Edificaciones, infraestructura menor, saneamiento y obras de remediación ejecutadas con criterio ambiental desde el expediente técnico.</p>
-        </div>
-      </article>
+    </div>
+
+    <!-- Quiénes somos: el texto se ilumina palabra por palabra -->
+    <section class="about" id="nosotros">
+      <p class="about__label">Quiénes somos</p>
+      <p class="about__text" id="aboutText">Somos un aliado estratégico que fusiona la ingeniería civil con la consultoría ambiental avanzada y la gestión de recursos forestales. Generamos soluciones técnicas completas para proyectos privados y licitaciones con el Estado, asegurando una transición impecable entre la viabilidad ambiental y la ejecución de infraestructura.</p>
+      <div class="about__fronts">
+        <div class="front reveal"><b>Gestión forestal</b><span>Supervisión, inventarios, planes de manejo y carbono</span></div>
+        <div class="front reveal"><b>Ambiente y territorio</b><span>Estudios ambientales, SIG, satélite y residuos</span></div>
+        <div class="front reveal"><b>Ingeniería y obra</b><span>Construcción pública y privada, edificaciones</span></div>
+        <div class="front reveal"><b>Soporte en campo</b><span>Insumos, vehículos y personal técnico</span></div>
+      </div>
     </section>
 
-    <!-- Servicios: índice desplegable -->
+    <!-- Servicios por frente -->
     <section class="services" id="servicios">
       <div class="services__head">
-        <h2 class="reveal">Servicios</h2>
-        <p class="reveal">Cada servicio se entrega con sustento de campo, cartografía propia y el formato que pide la entidad evaluadora.</p>
+        <h2 class="reveal">19 servicios,<br>cuatro frentes.</h2>
+        <p class="reveal">Cada frente trabaja con el mismo equipo técnico, para que el estudio, el expediente y la ejecución hablen el mismo idioma.</p>
       </div>
-      <ul class="svc" id="svc">
-        <li class="svc__item">
-          <button class="svc__row" aria-expanded="false">
-            <span class="svc__title">Estudios de impacto ambiental</span>
-            <span class="svc__tags">DIA · EIA-sd · EIA-d</span>
-            <span class="svc__plus" aria-hidden="true"></span>
-          </button>
-          <div class="svc__panel"><div>
-            <p>Elaboración y levantamiento de observaciones de Declaraciones de Impacto Ambiental y Estudios de Impacto Ambiental semidetallados y detallados, con línea base física, biológica y social.</p>
-            <ul><li>Línea base y caracterización</li><li>Identificación y evaluación de impactos</li><li>Estrategia de manejo ambiental</li><li>Participación ciudadana</li></ul>
-          </div></div>
-        </li>
-        <li class="svc__item">
-          <button class="svc__row" aria-expanded="false">
-            <span class="svc__title">Inventario y manejo forestal</span>
-            <span class="svc__tags">PMF · DEMA · PO</span>
-            <span class="svc__plus" aria-hidden="true"></span>
-          </button>
-          <div class="svc__panel"><div>
-            <p>Inventarios forestales, censos comerciales y planes de manejo para concesiones, comunidades y predios privados, con parcelas georreferenciadas y procesamiento dasométrico.</p>
-            <ul><li>Inventario y censo forestal</li><li>Planes generales y operativos</li><li>Plantaciones y registro</li><li>Informes de ejecución</li></ul>
-          </div></div>
-        </li>
-        <li class="svc__item">
-          <button class="svc__row" aria-expanded="false">
-            <span class="svc__title">Monitoreo ambiental</span>
-            <span class="svc__tags">Aire · Agua · Ruido · Suelo</span>
-            <span class="svc__plus" aria-hidden="true"></span>
-          </button>
-          <div class="svc__panel"><div>
-            <p>Programas de monitoreo de calidad de aire, agua, ruido y suelo comparados con los Estándares de Calidad Ambiental vigentes, con informes listos para presentar.</p>
-            <ul><li>Diseño de red de monitoreo</li><li>Muestreo y cadena de custodia</li><li>Comparación con ECA y LMP</li><li>Informes periódicos</li></ul>
-          </div></div>
-        </li>
-        <li class="svc__item">
-          <button class="svc__row" aria-expanded="false">
-            <span class="svc__title">Reforestación y restauración</span>
-            <span class="svc__tags">Viveros · Compensación</span>
-            <span class="svc__plus" aria-hidden="true"></span>
-          </button>
-          <div class="svc__panel"><div>
-            <p>Diseño y ejecución de proyectos de reforestación, recuperación de áreas degradadas y planes de compensación con especies nativas.</p>
-            <ul><li>Selección de especies</li><li>Producción en vivero</li><li>Instalación y mantenimiento</li><li>Evaluación de sobrevivencia</li></ul>
-          </div></div>
-        </li>
-        <li class="svc__item">
-          <button class="svc__row" aria-expanded="false">
-            <span class="svc__title">Obras civiles y edificación</span>
-            <span class="svc__tags">Expediente · Ejecución</span>
-            <span class="svc__plus" aria-hidden="true"></span>
-          </button>
-          <div class="svc__panel"><div>
-            <p>Expedientes técnicos y ejecución de obras: edificaciones, saneamiento, infraestructura rural y obras de remediación ambiental.</p>
-            <ul><li>Expediente técnico</li><li>Ejecución y residencia</li><li>Supervisión</li><li>Liquidación de obra</li></ul>
-          </div></div>
-        </li>
-        <li class="svc__item">
-          <button class="svc__row" aria-expanded="false">
-            <span class="svc__title">Topografía y SIG</span>
-            <span class="svc__tags">Drone · GPS · Mapas</span>
-            <span class="svc__plus" aria-hidden="true"></span>
-          </button>
-          <div class="svc__panel"><div>
-            <p>Levantamientos topográficos, fotogrametría con drone y cartografía temática para estudios, saneamiento físico legal y diseño de obra.</p>
-            <ul><li>Levantamiento topográfico</li><li>Ortofotos y modelos de elevación</li><li>Mapas temáticos</li><li>Memorias descriptivas</li></ul>
-          </div></div>
-        </li>
+
+      <div class="tabs" role="tablist" aria-label="Frentes de servicio">
+        <button class="tab is-active" role="tab" aria-selected="true" data-tab="0">Gestión forestal</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="1">Ambiente y territorio</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="2">Ingeniería y obra</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="3">Soporte en campo</button>
+      </div>
+
+      <div class="svc-wrap">
+        <div class="svc-media" aria-hidden="true">
+          <img class="is-active" src="media/img/medicion-2-1800.webp" srcset="media/img/medicion-2-900.webp 900w, media/img/medicion-2-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 45vw" alt="" loading="lazy">
+          <img src="media/img/dron-bosque-1800.webp" srcset="media/img/dron-bosque-900.webp 900w, media/img/dron-bosque-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 45vw" alt="" loading="lazy">
+          <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=1400&q=70&auto=format&fit=crop" alt="" loading="lazy">
+          <img src="media/img/brigada-1800.webp" srcset="media/img/brigada-900.webp 900w, media/img/brigada-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 45vw" alt="" loading="lazy">
+        </div>
+
+        <div class="svc-panels">
+          <ul class="svc is-active" data-panel="0">
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Consultoría forestal y supervisión ambiental</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Supervisión de planes de manejo forestal, auditorías quinquenales y monitoreo de títulos habilitantes, incluidos los contratos de cesión en uso para sistemas agroforestales (CUSAF). Inspecciones oculares de especies forestales de los apéndices CITES para la verificación técnica, la trazabilidad y el aprovechamiento sostenible.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Planes de manejo forestal y planes de negocio</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Formulación de PGMF, PMFI, Planes Operativos (PO) y DEMA. Planes de negocio para concesionarios, comunidades nativas y campesinas, predios privados y organizaciones productivas, orientados al aprovechamiento sostenible y al acceso a financiamiento.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Inventarios y evaluación de recursos forestales</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Inventarios forestales de alta precisión en áreas de títulos habilitantes, con la data técnica indispensable para formular correctamente los planes de manejo.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Evaluación de carbono en bosques tropicales</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Evaluaciones técnicas y cuantificación de las existencias de carbono en bosques tropicales, abriendo oportunidades en el mercado de mitigación ambiental.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Monitoreo con drones y evaluación de concesiones</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Evaluación de concesiones de conservación, ecoturismo y aprovechamiento maderable con drones (RPA) y procesamiento de imágenes satelitales, para auditar de forma rápida y exacta el estado del bosque.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Reforestación y conservación ambiental</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Proyectos de reforestación y forestación a medida, evaluación del impacto ambiental de obras de infraestructura y soluciones para preservar el entorno.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Capacitación ambiental y forestal</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Programas de capacitación técnica en gestión ambiental y aprovechamiento forestal para concesionarios, comunidades nativas y campesinas, titulares de predios, estudiantes y demás actores del sector.</p></div></div></li>
+          </ul>
+
+          <ul class="svc" data-panel="1">
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Estudios ambientales, SST y responsabilidad social</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Estudios técnicos en medio ambiente, seguridad y salud en el trabajo, calidad y responsabilidad social para minería, construcción, transporte, pesquería, agricultura e industria.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Ordenamiento territorial y estudios geográficos</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Zonificación ecológica y económica (ZEE), demarcación territorial, evaluación de riesgos, estudios topográficos y geodésicos, catastro urbano y rural, y saneamiento físico-legal de predios.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Sistemas de Información Geográfica y cartografía</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Análisis geoespacial avanzado y cartografía temática de alta precisión, adaptada a las necesidades de cada proyecto.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Tecnología satelital y monitoreo de cobertura boscosa</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Análisis satelital para exploración minera, modelamiento geológico, gestión de riesgos y vigilancia de la vegetación amazónica, con detección de alertas en la cobertura boscosa.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Gestión integral de residuos sólidos</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Recolección, transporte, tratamiento y disposición final de residuos municipales, industriales, hospitalarios, agropecuarios y de construcción, peligrosos y no peligrosos, conforme a la normativa.</p></div></div></li>
+          </ul>
+
+          <ul class="svc" data-panel="2">
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Ingeniería, construcción y proyectos de envergadura</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Diseño, supervisión y ejecución de obras civiles, mineras, electromecánicas, hidráulicas, de saneamiento, vías de comunicación y telecomunicaciones.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Contrataciones con el Estado y obras privadas</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Consultoría y ejecución de obras públicas y privadas, cumpliendo estrictamente la normativa de contrataciones del Estado para procesos transparentes.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Edificaciones comerciales, residenciales e institucionales</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Edificios multifamiliares, viviendas, establecimientos de salud, colegios e infraestructura comercial e industrial.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Infraestructura deportiva y recreacional</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Complejos deportivos, canchas multifuncionales y parques recreacionales que mejoran la calidad de vida de la comunidad.</p></div></div></li>
+          </ul>
+
+          <ul class="svc" data-panel="3">
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Provisión de personal y soporte operativo de campo</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Personal técnico calificado y ayudantes de campo para levantamiento de información y acompañamiento de brigadas de supervisión, inspección, auditoría y monitoreo.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Suministro de insumos agrícolas y forestales</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Fertilizantes, semillas forestales y agrícolas certificadas, herramientas de ferretería y materiales para el trabajo de campo.</p></div></div></li>
+            <li class="svc__item"><button class="svc__row" aria-expanded="false"><span class="svc__title">Alquiler de vehículos y logística corporativa</span><span class="svc__plus" aria-hidden="true"></span></button>
+              <div class="svc__panel"><div><p>Flota de vehículos disponible para cubrir los requerimientos logísticos y de transporte de cada proyecto.</p></div></div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- En campo: relato con marco fijo que cambia al bajar -->
+    <section class="field" id="campo">
+      <div class="field__sticky">
+        <div class="field__media" id="fieldMedia">
+          <video class="field__layer is-active" muted loop playsinline preload="none" poster="media/campo-poster.webp" data-src="media/campo-720.mp4"></video>
+          <img class="field__layer" src="media/img/medicion-2-1800.webp" srcset="media/img/medicion-2-900.webp 900w, media/img/medicion-2-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 60vw" alt="Brigadista y técnico midiendo el diámetro de un árbol marcado con pintura" loading="lazy">
+          <img class="field__layer" src="media/img/registro-1800.webp" srcset="media/img/registro-900.webp 900w, media/img/registro-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 60vw" alt="Técnico registrando datos junto a un árbol de gran diámetro" loading="lazy">
+          <img class="field__layer" src="media/img/medicion-1-1800.webp" srcset="media/img/medicion-1-900.webp 900w, media/img/medicion-1-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 60vw" alt="Medición del perímetro de un árbol en bosque amazónico" loading="lazy">
+          <img class="field__layer" src="media/img/brigada-1800.webp" srcset="media/img/brigada-900.webp 900w, media/img/brigada-1800.webp 1800w" sizes="(max-width: 900px) 100vw, 60vw" alt="Brigada de campo con cascos y equipo" loading="lazy">
+          <div class="field__progress"><i id="fieldBar"></i></div>
+        </div>
+      </div>
+      <div class="field__steps">
+        <h2 class="field__title">En campo</h2>
+        <article class="step" data-step="0">
+          <h3>Supervisión desde el aire</h3>
+          <p>Recorremos concesiones y títulos habilitantes con dron para leer el estado del bosque antes de entrar.</p>
+        </article>
+        <article class="step" data-step="1">
+          <h3>Inventario árbol por árbol</h3>
+          <p>Cada individuo se codifica, se mide su diámetro y se marca para que la información sea verificable.</p>
+        </article>
+        <article class="step" data-step="2">
+          <h3>Registro y trazabilidad</h3>
+          <p>Datos georreferenciados y formatos firmados que sostienen la verificación técnica ante la autoridad.</p>
+        </article>
+        <article class="step" data-step="3">
+          <h3>Inspecciones CITES</h3>
+          <p>Verificación de especies listadas en los apéndices CITES para asegurar un aprovechamiento legal y sostenible.</p>
+        </article>
+        <article class="step" data-step="4">
+          <h3>Brigadas preparadas</h3>
+          <p>Personal técnico y ayudantes de campo equipados para jornadas completas en el interior del bosque.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Visión: la imagen se abre al bajar -->
+    <section class="vision" aria-label="Visión">
+      <div class="vision__frame" id="visionFrame">
+        <img src="media/img/rio-meandro-1800.webp" srcset="media/img/rio-meandro-900.webp 900w, media/img/rio-meandro-1800.webp 1800w" sizes="100vw" alt="Meandro de un río amazónico visto desde un dron" loading="lazy">
+        <div class="vision__copy">
+          <p class="vision__kicker">Visión 2031</p>
+          <p class="vision__text">Ser la empresa líder en soluciones que armonizan la infraestructura moderna con el resguardo de los ecosistemas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Misión y valores -->
+    <section class="values">
+      <div class="values__mission">
+        <h2 class="reveal">Misión</h2>
+        <p class="reveal">Proveer servicios integrales de ingeniería, construcción, consultoría ambiental y gestión forestal sostenible con calidad técnica y legal excepcional, viabilizando proyectos de gran envergadura para clientes públicos y privados mientras promovemos el desarrollo social y la conservación del entorno natural.</p>
+      </div>
+      <ul class="values__list">
+        <li class="reveal"><h3>Sostenibilidad e impacto positivo</h3><p>Soluciones que equilibran el progreso de la infraestructura con el bienestar social y la preservación ambiental.</p></li>
+        <li class="reveal"><h3>Excelencia técnica e innovación</h3><p>Tecnologías avanzadas y estándares metodológicos rigurosos para resultados eficientes.</p></li>
+        <li class="reveal"><h3>Integridad y cumplimiento normativo</h3><p>Transparencia y estricta adherencia al marco legal, con seguridad jurídica en cada contrato.</p></li>
+        <li class="reveal"><h3>Compromiso y responsabilidad social</h3><p>Relaciones de confianza con comunidades y aliados, aportando valor a cada región.</p></li>
       </ul>
     </section>
 
-    <!-- Proceso: perfil de elevación -->
-    <section class="process" id="proceso">
-      <h2 class="reveal">Del campo a la obra</h2>
-      <p class="process__lead reveal">Un mismo hilo técnico recorre todo el proyecto, como un transecto que cruza el terreno.</p>
-      <div class="transect" id="transect">
-        <svg class="transect__line" viewBox="0 0 1200 220" preserveAspectRatio="none" aria-hidden="true">
-          <path class="transect__fill" d="M0 170 C 90 160, 140 120, 220 128 S 360 60, 450 74 S 600 150, 690 132 S 840 40, 930 52 S 1100 120, 1200 96 L1200 220 L0 220 Z"/>
-          <path class="transect__stroke" id="transectPath" d="M0 170 C 90 160, 140 120, 220 128 S 360 60, 450 74 S 600 150, 690 132 S 840 40, 930 52 S 1100 120, 1200 96"/>
-        </svg>
-        <ol class="transect__stops">
-          <li style="--x:18%">
-            <i></i>
-            <h3>Visita y diagnóstico</h3>
-            <p>Recorremos el área, revisamos la normativa aplicable y definimos el instrumento correcto.</p>
-          </li>
-          <li style="--x:39%">
-            <i></i>
-            <h3>Trabajo de campo</h3>
-            <p>Parcelas, muestreo, topografía y registro fotográfico georreferenciado.</p>
-          </li>
-          <li style="--x:62%">
-            <i></i>
-            <h3>Expediente y aprobación</h3>
-            <p>Redacción, presentación y levantamiento de observaciones hasta la conformidad.</p>
-          </li>
-          <li style="--x:83%">
-            <i></i>
-            <h3>Ejecución y monitoreo</h3>
-            <p>Obra, reforestación o monitoreo con el mismo equipo que hizo el estudio.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- Banda con foto -->
-    <section class="band" aria-label="Compromiso">
-      <div class="band__img" id="bandImg"></div>
-      <blockquote class="band__quote">
-        <p class="reveal">Cada árbol inventariado y cada metro construido llevan sustento técnico y firma responsable.</p>
-      </blockquote>
-    </section>
-
-    <!-- Ámbitos -->
-    <section class="fields" id="ambitos">
-      <h2 class="reveal">Trabajamos para</h2>
-      <div class="fields__grid">
-        <div class="field reveal"><h3>Municipalidades y gobiernos regionales</h3><p>Expedientes, obras públicas e instrumentos ambientales para proyectos de inversión.</p></div>
-        <div class="field reveal"><h3>Empresas privadas</h3><p>Certificación ambiental, monitoreos y cumplimiento de compromisos asumidos.</p></div>
-        <div class="field reveal"><h3>Comunidades y titulares forestales</h3><p>Planes de manejo, inventarios y acompañamiento ante la autoridad forestal.</p></div>
-        <div class="field reveal"><h3>Proyectos agrarios y de energía</h3><p>Evaluaciones, cambio de uso y medidas de compensación ambiental.</p></div>
+    <!-- Territorio: galería horizontal ligada al scroll -->
+    <section class="gallery" id="territorio">
+      <div class="gallery__sticky">
+        <div class="gallery__head">
+          <h2>Territorio que conocemos</h2>
+          <p>Tomas propias de nuestras jornadas en la Amazonía.</p>
+        </div>
+        <div class="gallery__track" id="galleryTrack">
+          <figure class="shot shot--wide"><img src="media/img/rio-lejano-1800.webp" srcset="media/img/rio-lejano-900.webp 900w, media/img/rio-lejano-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 50vw" alt="Llanura amazónica con un río serpenteante al fondo" loading="lazy"><figcaption>Llanura aluvial</figcaption></figure>
+          <figure class="shot"><img src="media/img/dron-trocha-1800.webp" srcset="media/img/dron-trocha-900.webp 900w, media/img/dron-trocha-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Vista cenital de una trocha en medio del bosque" loading="lazy"><figcaption>Trocha de acceso</figcaption></figure>
+          <figure class="shot shot--wide"><img src="media/img/rio-ancho-1800.webp" srcset="media/img/rio-ancho-900.webp 900w, media/img/rio-ancho-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 50vw" alt="Río ancho bordeado de bosque bajo un cielo nublado" loading="lazy"><figcaption>Ribera y bosque de colina</figcaption></figure>
+          <figure class="shot"><img src="media/img/medicion-3-1800.webp" srcset="media/img/medicion-3-900.webp 900w, media/img/medicion-3-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Técnico midiendo un árbol con cinta diamétrica" loading="lazy"><figcaption>Medición de diámetro</figcaption></figure>
+          <figure class="shot shot--wide"><img src="media/img/dron-bosque-1800.webp" srcset="media/img/dron-bosque-900.webp 900w, media/img/dron-bosque-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 50vw" alt="Bosque amazónico continuo visto desde el aire" loading="lazy"><figcaption>Bosque continuo</figcaption></figure>
+          <figure class="shot"><img src="media/img/medicion-4-1800.webp" srcset="media/img/medicion-4-900.webp 900w, media/img/medicion-4-1800.webp 1800w" sizes="(max-width: 900px) 85vw, 34vw" alt="Brigadista y técnico junto a un árbol codificado" loading="lazy"><figcaption>Árbol codificado</figcaption></figure>
+        </div>
       </div>
     </section>
 
@@ -310,14 +339,17 @@
       <form class="form reveal" id="form" novalidate>
         <label><span>Nombre o entidad</span><input name="nombre" required autocomplete="name"></label>
         <label><span>Teléfono</span><input name="tel" type="tel" required autocomplete="tel"></label>
-        <label><span>Tipo de proyecto</span>
+        <label><span>Servicio</span>
           <select name="tipo">
-            <option>Estudio de impacto ambiental</option>
-            <option>Inventario o plan de manejo forestal</option>
-            <option>Monitoreo ambiental</option>
-            <option>Reforestación</option>
-            <option>Obra civil</option>
-            <option>Topografía y SIG</option>
+            <option>Supervisión o consultoría forestal</option>
+            <option>Plan de manejo o inventario forestal</option>
+            <option>Inspección CITES</option>
+            <option>Evaluación de carbono</option>
+            <option>Estudio ambiental o SST</option>
+            <option>SIG, cartografía o teledetección</option>
+            <option>Residuos sólidos</option>
+            <option>Obra civil o edificación</option>
+            <option>Personal, vehículos o insumos</option>
             <option>Otro</option>
           </select>
         </label>
@@ -333,7 +365,7 @@
   <footer class="foot">
     <div class="foot__big" aria-hidden="true">PGFS</div>
     <div class="foot__row">
-      <span>Consultores &amp; Constructores PGFS E.I.R.L.</span>
+      <span>Consultores &amp; Constructores &amp; PGFS E.I.R.L.</span>
       <span>RUC 20XXXXXXXXX</span>
       <span>© <span id="year">2026</span></span>
     </div>
