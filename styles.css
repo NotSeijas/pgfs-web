@@ -187,7 +187,7 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .ticker__track span::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--forest-900); margin-left: 28px; }
 
 /* ---------- Revelado ---------- */
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out); transition-delay: var(--d, 0ms); }
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 650ms var(--ease-out), transform 650ms var(--ease-out); transition-delay: var(--d, 0ms); }
 .reveal.in { opacity: 1; transform: none; }
 
 /* ---------- Quiénes somos ---------- */
@@ -246,14 +246,15 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .field { position: relative; display: grid; grid-template-columns: 1.25fr 1fr; background: var(--forest-950); }
 .field__sticky { position: sticky; top: 0; height: 100svh; padding: 96px 0 32px var(--gutter); }
 .field__media { position: relative; height: 100%; border-radius: 12px; overflow: hidden; background: var(--forest-800); }
-.field__layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06); transition: opacity 900ms ease, transform 1600ms var(--ease-out); }
+.field__layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.04); transition: opacity 450ms ease, transform 900ms var(--ease-out); }
 .field__layer.is-active { opacity: 1; transform: scale(1); }
 .field__progress { position: absolute; left: 20px; right: 20px; bottom: 20px; height: 2px; background: rgba(233, 240, 230, 0.25); z-index: 2; }
 .field__progress i { position: absolute; inset: 0; background: var(--lichen); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); }
 .field__steps { padding: 0 var(--gutter) 30vh clamp(32px, 5vw, 80px); }
 .field__title { font-size: clamp(44px, 6vw, 96px); line-height: 0.9; letter-spacing: -0.05em; padding: 22vh 0 4vh; }
-.step { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.25; transition: opacity 500ms ease; }
+.step { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.25; transition: opacity 300ms ease; }
 .step.is-active { opacity: 1; }
+.step__media { display: none; }
 .step h3 { font-size: clamp(28px, 3vw, 44px); line-height: 1.05; }
 .step p { color: var(--on-dark-2); margin-top: 16px; max-width: 38ch; font-size: 18px; }
 
@@ -268,7 +269,7 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
   grid-auto-rows: clamp(150px, 16vw, 250px);
 }
 .tile { position: relative; margin: 0; border-radius: 10px; overflow: hidden; background: var(--forest-800);
-  clip-path: inset(var(--ci, 0%) 0 0 0 round 10px); transition: clip-path 1100ms var(--ease-in-out); transition-delay: var(--td, 0ms); }
+  clip-path: inset(var(--ci, 0%) 0 0 0 round 10px); transition: clip-path 850ms var(--ease-in-out); transition-delay: var(--td, 0ms); }
 .mosaic.is-armed .tile { --ci: 100%; }
 .mosaic.is-armed.in .tile { --ci: 0%; }
 .tile__media { position: absolute; inset: -9% 0; will-change: transform; transform: translate3d(0, var(--py, 0px), 0); }
@@ -436,10 +437,12 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
   .svc-media { position: relative; top: 0; aspect-ratio: 16 / 10; }
 
   .field { grid-template-columns: 1fr; }
-  .field__sticky { height: 52svh; top: 0; padding: 72px var(--gutter) 12px; z-index: 1; background: var(--forest-950); }
-  .field__steps { padding: 0 var(--gutter) 20vh; }
-  .field__title { padding: 6vh 0 2vh; }
-  .step { min-height: 46vh; }
+  .field__sticky { display: none; }
+  .field__steps { padding: 0 var(--gutter) var(--section); }
+  .field__title { padding: var(--section) 0 28px; }
+  .step { min-height: 0; opacity: 1; padding-bottom: 48px; justify-content: flex-start; }
+  .step__media { display: block; margin: 0 0 18px; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; background: var(--forest-800); }
+  .step__media img { width: 100%; height: 100%; object-fit: cover; }
 
   .crew__head { grid-template-columns: 1fr; }
   .crew__head p { justify-self: start; }

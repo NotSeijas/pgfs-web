@@ -179,6 +179,7 @@
   const aboutText = $('#aboutText');
   aboutText.innerHTML = aboutText.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
   const words = $$('.w', aboutText);
+  let litWords = 0;
 
   /* ---------- Franja: velocidad ligada al scroll ---------- */
   const ticker = $('#ticker');
@@ -215,10 +216,24 @@
   /* ---------- En campo ---------- */
   const fieldSec = $('#campo');
   const layers = $$('.field__layer');
+  const fieldSticky = $('.field__sticky');
   const steps = $$('.step');
   const fieldBar = $('#fieldBar');
   const fieldVideo = layers[0];
   let fieldVideoLoaded = false, activeStep = -1;
+  // en celular cada paso lleva su propia imagen encima del texto (sin marco fijo que tape la lectura)
+  steps.forEach((st, i) => {
+    const src = layers[i];
+    if (!src) return;
+    const fig = document.createElement('figure');
+    fig.className = 'step__media';
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    if (src.tagName === 'VIDEO') { img.src = src.poster; img.alt = 'Toma de dron sobre el bosque'; }
+    else { img.src = src.getAttribute('src'); img.srcset = src.getAttribute('srcset') || ''; img.sizes = '100vw'; img.alt = src.alt; }
+    fig.appendChild(img);
+    st.prepend(fig);
+  });
 
   /* ---------- Visión, galería, pie ---------- */
   const vision = $('.vision');
@@ -303,12 +318,15 @@
   galNext.addEventListener('click', () => step(1));
 
   /* ---------- Revelado al entrar ---------- */
+  // aparece apenas entra en pantalla; si el visitante ya pasó de largo (salto con un enlace), se muestra al instante
   const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { rootMargin: '0px 0px -12% 0px' });
+    entries.forEach(e => {
+      if (e.isIntersecting || e.boundingClientRect.top < 0) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -6% 0px' });
   $$('.reveal').forEach(el => {
     const sibs = [...el.parentElement.children].filter(c => c.classList.contains('reveal'));
-    el.style.setProperty('--d', `${sibs.indexOf(el) * 70}ms`);
+    el.style.setProperty('--d', `${sibs.indexOf(el) * 50}ms`);
     io.observe(el);
   });
 
@@ -360,26 +378,38 @@
     if (ar.top < vh && ar.bottom > 0) {
       const p = reduce ? 1 : clamp((vh * 0.85 - ar.top) / (ar.height + vh * 0.35), 0, 1);
       const lit = Math.round(p * words.length);
-      words.forEach((w, i) => w.classList.toggle('on', i < lit));
+      // solo toca las palabras que cambian de estado
+      if (lit !== litWords) {
+        const lo = Math.min(lit, litWords), hi = Math.max(lit, litWords);
+        for (let i = lo; i < hi; i++) words[i].classList.toggle('on', i < lit);
+        litWords = lit;
+      }
     }
 
     // en campo: el paso más cercano al centro manda la imagen
     const fr = fieldSec.getBoundingClientRect();
     if (fr.top < vh && fr.bottom > 0) {
-      let best = 0, bestD = Infinity;
+      // la línea de lectura es el centro de la zona donde se ve el texto
+      // (en celular, la parte de la pantalla que queda bajo el marco fijo de la imagen)
+      const sb = fieldSticky.getBoundingClientRect().bottom;
+      const mobileLayout = innerWidth <= 900;
+      const line = mobileLayout ? Math.max(0, sb) + (vh - Math.max(0, sb)) * 0.5 : vh * 0.5;
+      let best = 0;
       steps.forEach((s, i) => {
         const r = s.getBoundingClientRect();
-        const d = Math.abs(r.top + r.height / 2 - vh * 0.55);
-        if (d < bestD) { bestD = d; best = i; }
+        if (r.top + Math.min(r.height * 0.35, 120) <= line) best = i;
       });
       if (best !== activeStep) {
         activeStep = best;
         steps.forEach((s, i) => s.classList.toggle('is-active', i === best));
         layers.forEach((l, i) => l.classList.toggle('is-active', i === best));
       }
-      if (!fieldVideoLoaded) { fieldVideo.src = fieldVideo.dataset.src; fieldVideoLoaded = true; }
-      if (activeStep === 0 && fieldVideo.paused) fieldVideo.play().catch(() => {});
-      if (activeStep !== 0 && !fieldVideo.paused) fieldVideo.pause();
+      // en celular el marco con el video no se muestra: no se descarga
+      if (!mobileLayout) {
+        if (!fieldVideoLoaded) { fieldVideo.src = fieldVideo.dataset.src; fieldVideoLoaded = true; }
+        if (activeStep === 0 && fieldVideo.paused) fieldVideo.play().catch(() => {});
+        if (activeStep !== 0 && !fieldVideo.paused) fieldVideo.pause();
+      } else if (fieldVideoLoaded && !fieldVideo.paused) fieldVideo.pause();
       const fp = clamp(-fr.top / (fr.height - vh), 0, 1);
       fieldBar.style.setProperty('--p', fp.toFixed(3));
     } else if (fieldVideoLoaded && !fieldVideo.paused) fieldVideo.pause();
@@ -436,11 +466,11 @@
   const mosaic = $('#mosaic');
   if (mosaic) {
     const tiles = $$('.tile', mosaic);
-    tiles.forEach((t, i) => t.style.setProperty('--td', `${i * 90}ms`));
+    tiles.forEach((t, i) => t.style.setProperty('--td', `${i * 55}ms`));
     if (!reduce) mosaic.classList.add('is-armed');
     new IntersectionObserver(([e], o) => {
       if (e.isIntersecting) { mosaic.classList.add('in'); o.disconnect(); }
-    }, { rootMargin: '0px 0px -15% 0px' }).observe(mosaic);
+    }, { rootMargin: '0px 0px -8% 0px' }).observe(mosaic);
 
     // los clips se cargan y reproducen solo mientras se ven
     const clipObs = new IntersectionObserver(entries => entries.forEach(e => {
