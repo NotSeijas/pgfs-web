@@ -43,6 +43,9 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
 p { margin: 0; text-wrap: pretty; }
 
 ::selection { background: var(--lichen); color: var(--forest-900); }
+/* Oculta el cursor de texto en contenido que no se edita (p. ej. con la navegación con cursor F7 activada) */
+body { caret-color: transparent; }
+input, textarea, select, [contenteditable="true"] { caret-color: var(--moss); }
 :focus-visible { outline: 2px solid var(--lichen); outline-offset: 3px; border-radius: 4px; }
 html { scrollbar-color: var(--moss) var(--forest-950); }
 ::-webkit-scrollbar { width: 10px; }
