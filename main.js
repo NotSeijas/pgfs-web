@@ -432,6 +432,45 @@
   });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { heroVideo.pause(); fieldVideo.pause(); } });
 
+  /* ---------- Nuestro equipo: revelado en cascada, profundidad y clips en movimiento ---------- */
+  const mosaic = $('#mosaic');
+  if (mosaic) {
+    const tiles = $$('.tile', mosaic);
+    tiles.forEach((t, i) => t.style.setProperty('--td', `${i * 90}ms`));
+    if (!reduce) mosaic.classList.add('is-armed');
+    new IntersectionObserver(([e], o) => {
+      if (e.isIntersecting) { mosaic.classList.add('in'); o.disconnect(); }
+    }, { rootMargin: '0px 0px -15% 0px' }).observe(mosaic);
+
+    // los clips se cargan y reproducen solo mientras se ven
+    const clipObs = new IntersectionObserver(entries => entries.forEach(e => {
+      const v = e.target;
+      if (e.isIntersecting && !reduce) {
+        if (!v.src) v.src = v.dataset.src;
+        v.play().catch(() => {});
+      } else if (!v.paused) v.pause();
+    }), { threshold: 0.25 });
+    $$('video', mosaic).forEach(v => clipObs.observe(v));
+
+    // cada foto se desplaza a su propio ritmo al bajar
+    const medias = tiles.map(t => ({ el: $('.tile__media', t), tile: t, speed: +t.dataset.speed || 0 }));
+    let mTick = false;
+    const parallax = () => {
+      mTick = false;
+      const r = mosaic.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return;
+      medias.forEach(m => {
+        const tr = m.tile.getBoundingClientRect();
+        const c = (tr.top + tr.height / 2 - innerHeight / 2) / innerHeight;
+        m.el.style.setProperty('--py', `${(c * m.speed * 6).toFixed(1)}px`);
+      });
+    };
+    if (!reduce) {
+      addEventListener('scroll', () => { if (!mTick) { mTick = true; requestAnimationFrame(parallax); } }, { passive: true });
+      parallax();
+    }
+  }
+
   /* ---------- Navegación ---------- */
   const nav = $('#nav');
   let navY = scrollY;
