@@ -191,17 +191,43 @@
   const panels = $$('.svc');
   const media = $$('.svc-media img');
   panels.forEach(pn => $$('.svc__item', pn).forEach((li, i) => li.style.setProperty('--i', i)));
+  // las fotos de los frentes se precargan y decodifican en segundo plano,
+  // para que al cambiar de pestaña no haya espera ni aparezcan de golpe
+  const warmMedia = () => media.forEach(img => {
+    img.loading = 'eager';
+    if (img.decode) img.decode().catch(() => {});
+  });
+  if ('requestIdleCallback' in window) requestIdleCallback(warmMedia, { timeout: 2500 });
+  else setTimeout(warmMedia, 1200);
+
+  let mediaShown = 0, mediaAnim = null, settle = null;
+  function showMedia(n) {
+    if (n === mediaShown && !mediaAnim) return;
+    // un cambio en curso se completa al instante: el siguiente siempre parte de un estado limpio
+    if (mediaAnim) { mediaAnim.cancel(); settle(); }
+    if (n === mediaShown) return;
+    const prev = media[mediaShown], next = media[n];
+    mediaShown = n;
+    settle = () => {
+      media.forEach(m => m.classList.toggle('is-active', m === next));
+      next.classList.remove('is-entering');
+      mediaAnim = null;
+    };
+    if (reduce || !next.animate) { settle(); return; }
+    prev.classList.add('is-active');
+    next.classList.add('is-entering');
+    mediaAnim = next.animate(
+      [{ clipPath: 'inset(100% 0 0 0)', transform: 'scale(1.06)' }, { clipPath: 'inset(0% 0 0 0)', transform: 'scale(1)' }],
+      { duration: 640, easing: 'cubic-bezier(0.77, 0, 0.175, 1)' }
+    );
+    mediaAnim.onfinish = () => settle();
+  }
+
   tabs.forEach(t => t.addEventListener('click', () => {
     const n = +t.dataset.tab;
     tabs.forEach(o => { const on = o === t; o.classList.toggle('is-active', on); o.setAttribute('aria-selected', on); });
     panels.forEach(pn => pn.classList.toggle('is-active', +pn.dataset.panel === n));
-    media.forEach((m, i) => {
-      if (m.classList.contains('is-active') && i !== n) {
-        m.classList.remove('is-active'); m.classList.add('is-leaving');
-        setTimeout(() => m.classList.remove('is-leaving'), 900);
-      }
-    });
-    media[n].classList.add('is-active');
+    showMedia(n);
   }));
   $$('.svc__item').forEach(item => {
     const btn = $('.svc__row', item);
