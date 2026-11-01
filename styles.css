@@ -119,6 +119,10 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .nav__links a { text-decoration: none; font-size: 15px; color: var(--on-dark-2); transition: color 200ms ease; }
 .nav__links a:hover { color: var(--on-dark); }
 .nav__burger { display: none; }
+.lang { display: flex; padding: 3px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(233, 240, 230, 0.28); margin-right: -14px; }
+.lang a { font: 600 12px/1 var(--body); letter-spacing: 0.05em; padding: 8px 11px; border-radius: 999px; color: var(--on-dark-2); text-decoration: none; transition: color 200ms ease; }
+.lang a[href]:hover { color: var(--on-dark); }
+.lang a[aria-current] { background: var(--lichen); color: var(--forest-900); }
 
 /* ---------- Hero ---------- */
 .hero { position: relative; height: 190vh; background: var(--forest-900); }
@@ -352,7 +356,7 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
 .shot figcaption { position: absolute; left: 16px; bottom: 14px; font: 500 12px/1 var(--mono); color: #fff; background: rgba(7, 23, 15, 0.55); backdrop-filter: blur(6px); padding: 8px 10px; border-radius: 6px; }
 
 /* ---------- Contacto ---------- */
-.contact { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 96px); padding: var(--section) var(--gutter); background: var(--lichen); color: var(--forest-900); }
+.contact { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); padding: var(--section) var(--gutter); background: var(--lichen); color: var(--forest-900); }
 .contact h2 { font-size: clamp(44px, 6.4vw, 104px); line-height: 0.92; letter-spacing: -0.045em; }
 .contact__copy > p { margin-top: 24px; max-width: 40ch; color: #2A3D1C; font-size: 18px; }
 .contact__data { margin: 48px 0 0; display: grid; gap: 18px; }
@@ -366,6 +370,7 @@ html { scrollbar-color: var(--moss) var(--forest-950); }
   font: 400 16px/1.4 var(--body); color: var(--ink);
   background: #fff; border: 1px solid var(--mist-200); border-radius: 6px; padding: 12px 14px;
   transition: border-color 200ms ease, box-shadow 200ms ease; resize: vertical; caret-color: var(--moss);
+  min-width: 0; width: 100%;
 }
 .form input:focus, .form select:focus, .form textarea:focus { outline: none; border-color: var(--moss); box-shadow: 0 0 0 3px rgba(62,113,73,0.2); }
 .form [aria-invalid="true"] { border-color: var(--clay); }

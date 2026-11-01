@@ -4,6 +4,11 @@
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const NS = 'http://www.w3.org/2000/svg';
+  // textos que arma el script, según el idioma de la página (/ o /en/)
+  const EN = document.documentElement.lang.startsWith('en');
+  const T = EN
+    ? { droneAlt: 'Drone footage over the forest', formError: 'Please enter your name and a phone number so we can reply.', hello: 'Hello PGFS, I am', interest: 'I am interested in' }
+    : { droneAlt: 'Toma de dron sobre el bosque', formError: 'Complete su nombre y un teléfono para poder responderle.', hello: 'Hola PGFS, soy', interest: 'Me interesa' };
 
   /* ---------- Ruido 3D (value noise) compartido ---------- */
   const perm = new Uint8Array(512);
@@ -255,7 +260,7 @@
     fig.className = 'step__media';
     const img = document.createElement('img');
     img.loading = 'lazy';
-    if (src.tagName === 'VIDEO') { img.src = src.poster; img.alt = 'Toma de dron sobre el bosque'; }
+    if (src.tagName === 'VIDEO') { img.src = src.poster; img.alt = T.droneAlt; }
     else { img.src = src.getAttribute('src'); img.srcset = src.getAttribute('srcset') || ''; img.sizes = '100vw'; img.alt = src.alt; }
     fig.appendChild(img);
     st.prepend(fig);
@@ -569,12 +574,12 @@
     const nombre = form.nombre, tel = form.tel;
     [nombre, tel].forEach(f => f.setAttribute('aria-invalid', !f.value.trim()));
     if (!nombre.value.trim() || !tel.value.trim()) {
-      err.textContent = 'Complete su nombre y un teléfono para poder responderle.';
+      err.textContent = T.formError;
       (nombre.value.trim() ? tel : nombre).focus();
       return;
     }
     err.textContent = '';
-    const msg = `Hola PGFS, soy ${nombre.value.trim()} (${tel.value.trim()}). Me interesa: ${form.tipo.value}.` +
+    const msg = `${T.hello} ${nombre.value.trim()} (${tel.value.trim()}). ${T.interest}: ${form.tipo.value}.` +
       (form.msg.value.trim() ? `\n${form.msg.value.trim()}` : '');
     trackEvent('solicitud_cotizacion', { servicio: form.tipo.value });
     window.open(`https://wa.me/51966740171?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
