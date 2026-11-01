@@ -4,11 +4,13 @@
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const NS = 'http://www.w3.org/2000/svg';
-  // textos que arma el script, según el idioma de la página (/ o /en/)
-  const EN = document.documentElement.lang.startsWith('en');
-  const T = EN
-    ? { droneAlt: 'Drone footage over the forest', formError: 'Please enter your name and a phone number so we can reply.', hello: 'Hello PGFS, I am', interest: 'I am interested in' }
-    : { droneAlt: 'Toma de dron sobre el bosque', formError: 'Complete su nombre y un teléfono para poder responderle.', hello: 'Hola PGFS, soy', interest: 'Me interesa' };
+  // idioma: arranca según la URL (/ o /en/) y el botón ES / EN lo cambia sin recargar
+  let lang = document.documentElement.lang.startsWith('en') ? 'en' : 'es';
+  const COPY = {
+    en: { droneAlt: 'Drone footage over the forest', formError: 'Please enter your name and a phone number so we can reply.', hello: 'Hello PGFS, I am', interest: 'I am interested in' },
+    es: { droneAlt: 'Toma de dron sobre el bosque', formError: 'Complete su nombre y un teléfono para poder responderle.', hello: 'Hola PGFS, soy', interest: 'Me interesa' },
+  };
+  const T = () => COPY[lang];
 
   /* ---------- Ruido 3D (value noise) compartido ---------- */
   const perm = new Uint8Array(512);
@@ -182,9 +184,14 @@
 
   /* ---------- Quiénes somos: palabras que se encienden ---------- */
   const aboutText = $('#aboutText');
-  aboutText.innerHTML = aboutText.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
-  const words = $$('.w', aboutText);
-  let litWords = 0;
+  let aboutSrc = aboutText.textContent.replace(/\s+/g, ' ').trim();
+  let words = [], litWords = 0;
+  const splitAbout = () => {
+    aboutText.innerHTML = aboutSrc.split(' ').map(w => `<span class="w">${w}</span>`).join(' ');
+    words = $$('.w', aboutText);
+    litWords = 0;
+  };
+  splitAbout();
 
   /* ---------- Franja: velocidad ligada al scroll ---------- */
   const ticker = $('#ticker');
@@ -260,7 +267,7 @@
     fig.className = 'step__media';
     const img = document.createElement('img');
     img.loading = 'lazy';
-    if (src.tagName === 'VIDEO') { img.src = src.poster; img.alt = T.droneAlt; }
+    if (src.tagName === 'VIDEO') { img.src = src.poster; img.alt = T().droneAlt; }
     else { img.src = src.getAttribute('src'); img.srcset = src.getAttribute('srcset') || ''; img.sizes = '100vw'; img.alt = src.alt; }
     fig.appendChild(img);
     st.prepend(fig);
@@ -574,16 +581,72 @@
     const nombre = form.nombre, tel = form.tel;
     [nombre, tel].forEach(f => f.setAttribute('aria-invalid', !f.value.trim()));
     if (!nombre.value.trim() || !tel.value.trim()) {
-      err.textContent = T.formError;
+      err.textContent = T().formError;
       (nombre.value.trim() ? tel : nombre).focus();
       return;
     }
     err.textContent = '';
-    const msg = `${T.hello} ${nombre.value.trim()} (${tel.value.trim()}). ${T.interest}: ${form.tipo.value}.` +
+    const msg = `${T().hello} ${nombre.value.trim()} (${tel.value.trim()}). ${T().interest}: ${form.tipo.value}.` +
       (form.msg.value.trim() ? `\n${form.msg.value.trim()}` : '');
     trackEvent('solicitud_cotizacion', { servicio: form.tipo.value });
     window.open(`https://wa.me/51966740171?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
   });
+
+  /* ---------- Idioma sin recargar: cambia los textos en el sitio con i18n.json ---------- */
+  let dict = null;
+  const loadDict = () => dict || (dict = fetch('/i18n.json').then(r => r.json()).then(d => {
+    const flip = pairs => pairs.map(([a, b]) => [b, a]);
+    return {
+      title: { es: d.title[0], en: d.title[1] },
+      en: { text: new Map(d.text), attr: new Map(d.attr) },
+      es: { text: new Map(flip(d.text)), attr: new Map(flip(d.attr)) },
+    };
+  }).catch(e => { dict = null; throw e; }));
+  if ('requestIdleCallback' in window) requestIdleCallback(loadDict, { timeout: 5000 });
+  else setTimeout(loadDict, 3000);
+
+  const ATTRS = ['alt', 'aria-label', 'aria-roledescription'];
+  const applyLang = (d, to) => {
+    const { text, attr } = d[to];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => aboutText.contains(n) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const v = n.nodeValue, key = v.replace(/\s+/g, ' ').trim();
+      const t = key && text.get(key);
+      if (t) n.nodeValue = v.match(/^\s*/)[0] + t + v.match(/\s*$/)[0];
+    }
+    $$(ATTRS.map(a => `[${a}]`).join(',')).forEach(el => ATTRS.forEach(a => {
+      const t = el.hasAttribute(a) && attr.get(el.getAttribute(a));
+      if (t) el.setAttribute(a, t);
+    }));
+    aboutSrc = text.get(aboutSrc) || aboutSrc;
+    splitAbout();
+    const err = $('#formError');
+    if (err.textContent) err.textContent = COPY[to].formError;
+    lang = to;
+    document.documentElement.lang = to === 'en' ? 'en' : 'es-PE';
+    document.title = d.title[to];
+    $$('.lang a').forEach(a => a.toggleAttribute('aria-current', a.hreflang === to));
+    $$('.lang a[aria-current]').forEach(a => a.setAttribute('aria-current', 'page'));
+    history.replaceState(null, '', (to === 'en' ? '/en/' : '/') + location.hash);
+  };
+
+  const fading = () => [$('main'), $('.foot'), $('.nav__links'), $('.nav > .btn')];
+  $$('.lang a').forEach(a => a.addEventListener('click', async e => {
+    e.preventDefault();
+    const to = a.hreflang;
+    if (to === lang) return;
+    let d;
+    try { d = await loadDict(); } catch { location.href = a.href; return; }
+    if (!reduce) await Promise.all(fading().map(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out', fill: 'forwards' }).finished));
+    applyLang(d, to);
+    if (!reduce) fading().forEach(el => {
+      el.getAnimations().forEach(an => an.cancel());
+      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
+    });
+    trackEvent('cambio_idioma', { idioma: to });
+  }));
 
   $('#year').textContent = new Date().getFullYear();
 })();

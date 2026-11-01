@@ -1,13 +1,16 @@
 """Genera en/index.html (versión en inglés) a partir de index.html.
 
-Uso:  python tools/build_en.py
+Uso:  python tools/build_en.py   (también genera i18n.json, que usa el botón ES / EN)
 
 Cada texto en español debe existir en index.html; si se cambia un texto en la
 versión en español, el script se detiene y avisa cuál falta, para actualizar
 aquí su traducción y que ambas versiones no se desfasen.
 """
+import json
 import re
 import sys
+from html import unescape
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -20,8 +23,8 @@ HEAD = [
     ('<link rel="canonical" href="https://pgfsconsultores.com/">', '<link rel="canonical" href="https://pgfsconsultores.com/en/">'),
     ('<meta property="og:locale" content="es_PE">', '<meta property="og:locale" content="en_US">\n  <meta property="og:locale:alternate" content="es_PE">'),
     ('<meta property="og:url" content="https://pgfsconsultores.com/">', '<meta property="og:url" content="https://pgfsconsultores.com/en/">'),
-    ('<a aria-current="page">ES</a>\n      <a href="/en/" hreflang="en" lang="en" aria-label="English">EN</a>',
-     '<a href="/" hreflang="es" lang="es" aria-label="Español">ES</a>\n      <a aria-current="page">EN</a>'),
+    ('<a href="/" hreflang="es" lang="es" aria-current="page">ES</a>\n      <a href="/en/" hreflang="en" lang="en">EN</a>',
+     '<a href="/" hreflang="es" lang="es">ES</a>\n      <a href="/en/" hreflang="en" lang="en" aria-current="page">EN</a>'),
     ('role="group" aria-label="Idioma"', 'role="group" aria-label="Language"'),
 ]
 
@@ -34,10 +37,10 @@ TEXT = {
     'consultoría ambiental Perú, consultora forestal, supervisión forestal, inspección CITES, plan de manejo forestal, PGMF, PMFI, DEMA, inventario forestal, evaluación de carbono, estudios ambientales, SST, SIG, cartografía, teledetección, ordenamiento territorial, ZEE, residuos sólidos, reforestación, drones forestales, ingeniería civil, construcción, contrataciones con el Estado, Amazonía, PGFS':
         'environmental consulting Peru, forestry consultant Peru, forest supervision, CITES inspection, forest management plan, forest inventory, forest carbon assessment, environmental impact studies, occupational health and safety, GIS, mapping, remote sensing, land-use planning, solid waste management, reforestation, forestry drones, civil engineering, construction, public procurement, Peruvian Amazon, PGFS',
     'Del bosque a la obra: supervisión forestal, CITES, planes de manejo, estudios ambientales, SIG y construcción en un solo aliado técnico.':
-        'From the forest to the build: forest supervision, CITES, management plans, environmental studies, GIS and construction with one technical partner.',
+        'From forest to build: forest supervision, CITES, management plans, environmental studies, GIS and construction with one technical partner.',
     'Consultora ambiental y forestal con área de ingeniería y construcción en el Perú: supervisión forestal, inspecciones CITES, planes de manejo, inventarios, evaluación de carbono, estudios ambientales, SIG, obras civiles y contrataciones con el Estado.':
         'Environmental and forestry consultancy with an engineering and construction division in Peru: forest supervision, CITES inspections, forest management plans, inventories, carbon assessment, environmental studies, GIS, civil works and public procurement.',
-    '"slogan": "Del bosque a la obra"': '"slogan": "From the forest to the build"',
+    '"slogan": "Del bosque a la obra"': '"slogan": "From forest to build"',
     '"name": "Perú"': '"name": "Peru"',
     '"name": "Servicios"': '"name": "Services"',
     '"Consultoría ambiental"': '"Environmental consulting"',
@@ -73,8 +76,8 @@ TEXT = {
     'aria-label="Abrir menú"': 'aria-label="Open menu"',
 
     # hero
-    '<span>Del bosque</span>': '<span>From the forest</span>',
-    '<span>a la <em>obra</em>.</span>': '<span>to the <em>build</em>.</span>',
+    '<span>Del bosque</span>': '<span>From forest</span>',
+    '<span>a la <em>obra</em>.</span>': '<span>to <em>build</em>.</span>',
     'Consultoría ambiental, forestal e ingeniería en Perú': 'Environmental, forestry and engineering consulting in Peru',
     'Supervisión forestal, inspecciones CITES, planes de manejo, estudios ambientales y obras civiles en un solo aliado técnico para instituciones públicas y empresas privadas.':
         'Forest supervision, CITES inspections, management plans, environmental studies and civil works, with a single technical partner for public institutions and private companies.',
@@ -94,20 +97,20 @@ TEXT = {
         'We are a strategic partner that brings together civil engineering, advanced environmental consulting and forest resource management. We deliver complete technical solutions for private projects and public tenders, ensuring a seamless transition from environmental feasibility to infrastructure delivery.',
     '<b>Gestión forestal</b><span>Supervisión, inventarios, planes de manejo y carbono</span>': '<b>Forest management</b><span>Supervision, inventories, management plans and carbon</span>',
     '<b>Ambiente y territorio</b><span>Estudios ambientales, SIG, satélite y residuos</span>': '<b>Environment and land</b><span>Environmental studies, GIS, satellite and waste</span>',
-    '<b>Ingeniería y obra</b><span>Construcción pública y privada, edificaciones</span>': '<b>Engineering and construction</b><span>Public and private construction, buildings</span>',
+    '<b>Ingeniería y obra</b><span>Construcción pública y privada, edificaciones</span>': '<b>Engineering &amp; works</b><span>Public and private construction, buildings</span>',
     '<b>Soporte en campo</b><span>Insumos, vehículos y personal técnico</span>': '<b>Field support</b><span>Supplies, vehicles and technical staff</span>',
 
     # servicios
     '19 servicios,<br>cuatro frentes.': '19 services,<br>four areas.',
     'Cada frente trabaja con el mismo equipo técnico, para que el estudio, el expediente y la ejecución hablen el mismo idioma.':
-        'Every area works with the same technical team, so the study, the technical file and the execution all speak the same language.',
+        'One technical team across every area, so the study, the file and the build speak one language.',
     'aria-label="Frentes de servicio"': 'aria-label="Practice areas"',
     'data-tab="0">Gestión forestal<': 'data-tab="0">Forest management<',
     'data-tab="1">Ambiente y territorio<': 'data-tab="1">Environment and land<',
-    'data-tab="2">Ingeniería y obra<': 'data-tab="2">Engineering and construction<',
+    'data-tab="2">Ingeniería y obra<': 'data-tab="2">Engineering &amp; works<',
     'data-tab="3">Soporte en campo<': 'data-tab="3">Field support<',
 
-    'Consultoría forestal y supervisión ambiental': 'Forestry consulting and environmental supervision',
+    'Consultoría forestal y supervisión ambiental': 'Forestry and environmental supervision',
     'Brindamos servicios de consultoría y asistencia técnica especializada en la elaboración, revisión y seguimiento de planes de manejo forestal, auditorías quinquenales y monitoreo de títulos habilitantes, incluidos los contratos de cesión en uso para sistemas agroforestales (CUSAF). Asimismo, realizamos inspecciones oculares de especies forestales incluidas en los apéndices CITES, así como evaluaciones técnicas y actividades de campo orientadas a verificar información, documentar resultados y fortalecer la trazabilidad de los recursos forestales, promoviendo su aprovechamiento sostenible y el cumplimiento de la normativa vigente.':
         'We provide consulting and specialized technical assistance in preparing, reviewing and following up forest management plans, five-year audits and the monitoring of forest permits and concessions, including agroforestry use-rights contracts (CUSAF). We also carry out on-site inspections of forest species listed in the CITES appendices, as well as technical assessments and field activities to verify information, document results and strengthen the traceability of forest resources, promoting their sustainable use and compliance with current regulations.',
     'Planes de manejo forestal y planes de negocio': 'Forest management plans and business plans',
@@ -287,9 +290,9 @@ TEXT = {
     '<h4>Frentes</h4>': '<h4>Practice areas</h4>',
     'data-tab-link="0">Gestión forestal<': 'data-tab-link="0">Forest management<',
     'data-tab-link="1">Ambiente y territorio<': 'data-tab-link="1">Environment and land<',
-    'data-tab-link="2">Ingeniería y obra<': 'data-tab-link="2">Engineering and construction<',
+    'data-tab-link="2">Ingeniería y obra<': 'data-tab-link="2">Engineering &amp; works<',
     'data-tab-link="3">Soporte en campo<': 'data-tab-link="3">Field support<',
-    '· Del bosque a la obra</span>': '· From the forest to the build</span>',
+    '· Del bosque a la obra</span>': '· From forest to build</span>',
     'Volver arriba': 'Back to top',
 }
 
@@ -310,11 +313,60 @@ def main():
         for m in missing:
             print('  -', m[:90], file=sys.stderr)
         sys.exit(1)
-    # rutas relativas: la página vive en /en/
-    html = re.sub(r'(?<=["\s,])(media/|styles\.css|main\.js|icon\.svg|icon-180\.png)', r'../\1', html)
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(html, encoding='utf-8')
     print('OK ->', OUT.relative_to(ROOT))
+    write_dictionary(SRC.read_text(encoding='utf-8'), html)
+
+
+class Tokens(HTMLParser):
+    """Secuencia de etiquetas y textos visibles de una página (sin <script>/<style>)."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out, self.skip = [], 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ('script', 'style'):
+            self.skip += 1
+        self.out.append(('tag', tag, dict(attrs)))
+
+    def handle_endtag(self, tag):
+        if tag in ('script', 'style'):
+            self.skip -= 1
+
+    def handle_data(self, data):
+        text = ' '.join(data.split())
+        if text and not self.skip:
+            self.out.append(('text', text))
+
+
+def write_dictionary(es_html, en_html):
+    """Arma i18n.json con los pares español/inglés para cambiar de idioma sin recargar."""
+    a, b = Tokens(), Tokens()
+    a.feed(es_html[es_html.index('<body'):])
+    b.feed(en_html[en_html.index('<body'):])
+    shape = lambda toks: [t[:2] if t[0] == 'tag' else ('text',) for t in toks]
+    if shape(a.out) != shape(b.out):
+        sys.exit('Las dos versiones no tienen la misma estructura; revise las traducciones con etiquetas.')
+    text, attr = {}, {}
+    for x, y in zip(a.out, b.out):
+        if x[0] == 'text' and x[1] != y[1]:
+            if text.get(x[1], y[1]) != y[1]:
+                sys.exit(f'"{x[1]}" tiene dos traducciones distintas; unifíquelas.')
+            text[x[1]] = y[1]
+        elif x[0] == 'tag':
+            for name in ('alt', 'aria-label', 'aria-roledescription'):
+                if name in x[2] and x[2][name] != y[2].get(name):
+                    attr.setdefault(x[2][name], y[2][name])
+    title = re.search(r'<title>(.*?)</title>', es_html).group(1)
+    data = {
+        'title': [unescape(title), unescape(TEXT[title])],
+        'text': sorted(text.items()),
+        'attr': sorted(attr.items()) + [('Toma de dron sobre el bosque', 'Drone footage over the forest')],
+    }
+    (ROOT / 'i18n.json').write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+    print(f'OK -> i18n.json ({len(text)} textos, {len(attr)} atributos)')
 
 
 if __name__ == '__main__':
