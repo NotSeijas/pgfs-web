@@ -225,7 +225,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="/media/hero-poster.webp">
-  <link rel="stylesheet" href="/styles.css?v=202611011900">
+  <link rel="stylesheet" href="/styles.css?v=202611061200">
   <!-- Google Analytics: pegar aquí el ID de medición (G-XXXXXXXXXX). Vacío = desactivado -->
   <script>
     (function () {
@@ -271,6 +271,7 @@
       <a href="#servicios">Services</a>
       <a href="#campo">In the field</a>
       <a href="#equipo">Team</a>
+      <a href="#proyectos">Projects</a>
       <a href="#territorio">Territory</a>
       <a href="#contacto">Contact</a>
     </nav>
@@ -530,6 +531,33 @@
       </div>
     </section>
 
+    <!-- Proyectos: mapa con la experiencia en campo (datos en /data/proyectos.json) -->
+    <section class="projects" id="proyectos">
+      <div class="projects__head">
+        <div>
+          <p class="projects__kicker reveal">Field experience</p>
+          <h2 class="reveal">Where we have worked</h2>
+        </div>
+        <dl class="projects__stats reveal" id="projStats">
+          <div><dt>projects</dt><dd data-stat="proyectos">–</dd></div>
+          <div><dt>hectares assessed</dt><dd data-stat="hectareas">–</dd></div>
+          <div><dt>regions</dt><dd data-stat="regiones">–</dd></div>
+        </dl>
+      </div>
+      <div class="projects__filters reveal" id="projFilters" role="group" aria-label="Filter projects"></div>
+      <div class="projects__stage reveal">
+        <div class="projects__map" id="projMap" role="region" aria-label="Project map"></div>
+        <div class="projects__layers" role="group" aria-label="Map type">
+          <button type="button" data-layer="sat" aria-pressed="true">Satellite</button>
+          <button type="button" data-layer="mapa" aria-pressed="false">Map</button>
+        </div>
+        <button type="button" class="projects__touch" id="projTouch" hidden>Tap to explore the map</button>
+        <article class="projects__card" id="projCard" aria-live="polite" hidden></article>
+        <p class="projects__sample" id="projSample" hidden>Sample data</p>
+      </div>
+      <p class="projects__note">Approximate locations. Clients are named only with their permission.</p>
+    </section>
+
     <!-- Visión: la imagen se abre al bajar -->
     <section class="vision" aria-label="Vision">
       <div class="vision__frame" id="visionFrame">
@@ -642,6 +670,7 @@
           <a href="#nosotros">About</a>
           <a href="#servicios">Services</a>
           <a href="#campo">In the field</a>
+          <a href="#proyectos">Projects</a>
           <a href="#territorio">Territory</a>
         </div>
         <div>
@@ -671,6 +700,7 @@
     </div>
   </footer>
 
-  <script src="/main.js?v=202611011900"></script>
+  <script src="/main.js?v=202611061200"></script>
+  <script src="/mapa.js?v=202611061200"></script>
 </body>
 </html>

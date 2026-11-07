@@ -213,6 +213,22 @@ TEXT = {
     'alt="Técnico de PGFS revisando el dron antes de despegar"': 'alt="PGFS technician checking the drone before take-off"',
     '<b>Revisión del dron</b><span>Antes del vuelo</span>': '<b>Drone check</b><span>Pre-flight</span>',
 
+    # proyectos (mapa)
+    '>Proyectos<': '>Projects<',
+    'Experiencia en campo': 'Field experience',
+    'Dónde hemos trabajado': 'Where we have worked',
+    '<dt>proyectos</dt>': '<dt>projects</dt>',
+    '<dt>hectáreas evaluadas</dt>': '<dt>hectares assessed</dt>',
+    '<dt>regiones</dt>': '<dt>regions</dt>',
+    'aria-label="Filtrar proyectos"': 'aria-label="Filter projects"',
+    'aria-label="Mapa de proyectos"': 'aria-label="Project map"',
+    'aria-label="Tipo de mapa"': 'aria-label="Map type"',
+    'aria-pressed="true">Satélite<': 'aria-pressed="true">Satellite<',
+    'aria-pressed="false">Mapa<': 'aria-pressed="false">Map<',
+    'Toque para explorar el mapa': 'Tap to explore the map',
+    '>Datos de ejemplo<': '>Sample data<',
+    'Ubicaciones aproximadas. Los clientes se mencionan solo con su autorización.': 'Approximate locations. Clients are named only with their permission.',
+
     # visión, misión, valores
     'aria-label="Visión"': 'aria-label="Vision"',
     'alt="Meandro de un río amazónico visto desde un dron"': 'alt="Meander of an Amazon river seen from a drone"',

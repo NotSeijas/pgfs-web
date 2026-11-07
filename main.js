@@ -630,6 +630,7 @@
     $$('.lang a').forEach(a => a.toggleAttribute('aria-current', a.hreflang === to));
     $$('.lang a[aria-current]').forEach(a => a.setAttribute('aria-current', 'page'));
     history.replaceState(null, '', (to === 'en' ? '/en/' : '/') + location.hash);
+    document.dispatchEvent(new CustomEvent('pgfs:lang', { detail: to }));
   };
 
   const fading = () => [$('main'), $('.foot'), $('.nav__links'), $('.nav > .btn')];
@@ -639,7 +640,11 @@
     if (to === lang) return;
     let d;
     try { d = await loadDict(); } catch { location.href = a.href; return; }
-    if (!reduce) await Promise.all(fading().map(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out', fill: 'forwards' }).finished));
+    // el tope de tiempo evita quedar esperando si el navegador pausa las animaciones (pestaña oculta)
+    if (!reduce) await Promise.race([
+      Promise.all(fading().map(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out', fill: 'forwards' }).finished)),
+      new Promise(r => setTimeout(r, 400)),
+    ]);
     applyLang(d, to);
     if (!reduce) fading().forEach(el => {
       el.getAnimations().forEach(an => an.cancel());
