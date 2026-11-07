@@ -1,0 +1,128 @@
+{
+  "ejemplo": true,
+  "categorias": {
+    "forestal": { "es": "Gestión forestal", "en": "Forest management", "color": "#C9E265" },
+    "rpas": { "es": "Monitoreo con drones", "en": "Drone monitoring", "color": "#C8763F" },
+    "ambiente": { "es": "Ambiente y territorio", "en": "Environment and land", "color": "#7FC4D8" },
+    "obra": { "es": "Ingeniería y obra", "en": "Engineering & works", "color": "#F2E3B3" }
+  },
+  "proyectos": [
+    {
+      "id": "censo-calleria-2025",
+      "categoria": "forestal",
+      "anio": 2025,
+      "nombre": { "es": "Censo forestal en concesión maderable", "en": "Forest census in a timber concession" },
+      "lugar": { "distrito": "Callería", "provincia": "Coronel Portillo", "region": "Ucayali" },
+      "coord": [-8.12, -74.93],
+      "hectareas": 1250,
+      "arboles": 3480,
+      "cliente": null,
+      "fotos": ["/media/img/vuelo-dosel-900.webp", "/media/img/vuelo-interior-900.webp"],
+      "area": { "type": "Polygon", "coordinates": [[[-75.0, -8.04], [-74.9, -8.02], [-74.84, -8.07], [-74.85, -8.16], [-74.92, -8.21], [-75.01, -8.17], [-75.04, -8.1], [-75.0, -8.04]]] }
+    },
+    {
+      "id": "rpas-iparia-2025",
+      "categoria": "rpas",
+      "anio": 2025,
+      "nombre": { "es": "Monitoreo con dron de una unidad de manejo forestal", "en": "Drone monitoring of a forest management unit" },
+      "lugar": { "distrito": "Iparía", "provincia": "Coronel Portillo", "region": "Ucayali" },
+      "coord": [-9.3, -74.43],
+      "hectareas": 4800,
+      "arboles": null,
+      "cliente": null,
+      "fotos": ["/media/img/eq-campo-dron-800.webp", "/media/img/eq-dosel-800.webp"],
+      "area": null
+    },
+    {
+      "id": "sig-puerto-inca-2025",
+      "categoria": "ambiente",
+      "anio": 2025,
+      "nombre": { "es": "Cartografía y análisis SIG de cobertura boscosa", "en": "GIS mapping and forest cover analysis" },
+      "lugar": { "distrito": "Puerto Inca", "provincia": "Puerto Inca", "region": "Huánuco" },
+      "coord": [-9.38, -74.97],
+      "hectareas": 2300,
+      "arboles": null,
+      "cliente": null,
+      "fotos": ["/media/img/rio-lejano-900.webp"],
+      "area": null
+    },
+    {
+      "id": "cites-raymondi-2024",
+      "categoria": "forestal",
+      "anio": 2024,
+      "nombre": { "es": "Inspección ocular de especies CITES", "en": "On-site inspection of CITES-listed species" },
+      "lugar": { "distrito": "Raymondi", "provincia": "Atalaya", "region": "Ucayali" },
+      "coord": [-10.73, -73.75],
+      "hectareas": null,
+      "arboles": 120,
+      "cliente": null,
+      "fotos": ["/media/img/vuelo-trocha-900.webp"],
+      "area": null
+    },
+    {
+      "id": "pmfi-padre-abad-2024",
+      "categoria": "forestal",
+      "anio": 2024,
+      "nombre": { "es": "Plan de manejo forestal intermedio (PMFI)", "en": "Intermediate forest management plan (PMFI)" },
+      "lugar": { "distrito": "Padre Abad", "provincia": "Padre Abad", "region": "Ucayali" },
+      "coord": [-9.04, -75.51],
+      "hectareas": 900,
+      "arboles": 1640,
+      "cliente": null,
+      "fotos": ["/media/img/vuelo-borde-900.webp"],
+      "area": null
+    },
+    {
+      "id": "estudio-yarinacocha-2024",
+      "categoria": "ambiente",
+      "anio": 2024,
+      "nombre": { "es": "Estudio ambiental para proyecto de infraestructura", "en": "Environmental study for an infrastructure project" },
+      "lugar": { "distrito": "Yarinacocha", "provincia": "Coronel Portillo", "region": "Ucayali" },
+      "coord": [-8.35, -74.6],
+      "hectareas": null,
+      "arboles": null,
+      "cliente": null,
+      "fotos": ["/media/img/te-comunidad-900.webp"],
+      "area": null
+    },
+    {
+      "id": "inventario-contamana-2023",
+      "categoria": "forestal",
+      "anio": 2023,
+      "nombre": { "es": "Inventario forestal en predio privado", "en": "Forest inventory on private land" },
+      "lugar": { "distrito": "Contamana", "provincia": "Ucayali", "region": "Loreto" },
+      "coord": [-7.35, -75.0],
+      "hectareas": 600,
+      "arboles": 2100,
+      "cliente": null,
+      "fotos": ["/media/img/vuelo-bosque-900.webp"],
+      "area": null
+    },
+    {
+      "id": "losa-manantay-2023",
+      "categoria": "obra",
+      "anio": 2023,
+      "nombre": { "es": "Losa deportiva multifuncional", "en": "Multi-purpose sports court" },
+      "lugar": { "distrito": "Manantay", "provincia": "Coronel Portillo", "region": "Ucayali" },
+      "coord": [-8.42, -74.54],
+      "hectareas": null,
+      "arboles": null,
+      "cliente": null,
+      "fotos": [],
+      "area": null
+    },
+    {
+      "id": "rpas-tahuamanu-2023",
+      "categoria": "rpas",
+      "anio": 2023,
+      "nombre": { "es": "Evaluación de concesión para conservación", "en": "Assessment of a conservation concession" },
+      "lugar": { "distrito": "Iñapari", "provincia": "Tahuamanu", "region": "Madre de Dios" },
+      "coord": [-11.0, -69.6],
+      "hectareas": 3500,
+      "arboles": null,
+      "cliente": null,
+      "fotos": ["/media/img/rio-meandro-900.webp"],
+      "area": null
+    }
+  ]
+}
